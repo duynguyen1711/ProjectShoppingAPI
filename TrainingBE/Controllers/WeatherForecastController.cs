@@ -1,4 +1,7 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using System.Text;
+using System.Security.Cryptography;
+
 
 namespace TrainingBE.Controllers
 {
@@ -28,6 +31,6 @@ namespace TrainingBE.Controllers
                 Summary = Summaries[Random.Shared.Next(Summaries.Length)]
             })
             .ToArray();
-        }
+        } 
     }
 }
