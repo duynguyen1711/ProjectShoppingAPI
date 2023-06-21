@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using TrainingBE.Model;
 using System.Linq;
+using System.Xml.Linq;
 
 namespace TrainingBE.Controllers
 {
@@ -14,6 +15,7 @@ namespace TrainingBE.Controllers
         public static Category vegetableCategory = new Category("Vegetables");
         public static Discount electronicsDiscount = new Discount { Percentage = 10, StartDate = new DateTime(2023, 6, 1), EndDate = new DateTime(2023, 6, 15) };
         public static Discount clothingDiscount =  new Discount { Percentage = 20, StartDate = new DateTime(2023, 6, 5), EndDate = new DateTime(2023, 6, 26) };
+        public static Discount vegetableDiscount =  new Discount { Percentage = 20, StartDate = new DateTime(2023, 6, 5), EndDate = new DateTime(2023, 6, 26) };
         public static List<Product> productList= new List<Product>
         {
                 new Product { Id =1,Name = "Laptop", Price = 1000,Category =  electronicsCategory, Discount = new List<Discount> { electronicsDiscount } },
@@ -21,7 +23,7 @@ namespace TrainingBE.Controllers
                 new Product { Id =3,Name = "Phone", Price = 800, Category = electronicsCategory, Discount = new List<Discount> {electronicsDiscount } },
                 new Product { Id =4,Name = "Bucket", Price = 70, Category = clothingCategory, Discount = new List<Discount> {clothingDiscount} },
                 new Product { Id =5,Name = "Baseball", Price = 70, Category = clothingCategory, Discount = new List<Discount> {clothingDiscount } },
-                new Product { Id =6,Name = "Tomato", Price = 5, Category = vegetableCategory, Discount = new List<Discount> {} },
+                new Product { Id =6,Name = "Tomato", Price = 10, Category = vegetableCategory, Discount = new List<Discount> { vegetableDiscount } },
         };
        
 
@@ -192,7 +194,7 @@ namespace TrainingBE.Controllers
         }
         [HttpGet]
         [Route("Product/FindByCategories")]
-        public IActionResult GetProductsWithCategories([FromQuery] List<string> categoryNames)
+        public IActionResult GetProductsWithCategories([FromQuery]List<string> categoryNames)
         {
             List<ProductInfo> productListWithPriceDiscount = GetProductListWithDiscount();
             List<Category> categoriesWithProducts = new List<Category>();
@@ -227,6 +229,144 @@ namespace TrainingBE.Controllers
                 return NotFound($"No products found in the specified categories.");
             }
         }
-      
+        [HttpGet]
+        [Route("Product/CountProduct")]
+        public IActionResult CountProduct()
+        {
+            List<ProductInfo> productListWithDiscount = GetProductListWithDiscount();
+            int total = productListWithDiscount.Count();
+            return Ok(new 
+            {
+                Message = "Total Product",
+                Total = total
+            });
+        }
+        [HttpGet]
+        [Route("Product/CountProduct/{categoryName}")]
+        public IActionResult CountProductByCategory(string categoryName)
+        {
+            List<ProductInfo> productListWithDiscount = GetProductListWithDiscount();
+            int total = productListWithDiscount.Count(p=> p.Category.Name.ToLower() == categoryName.ToLower());
+            return Ok(new
+            {
+                Message = "Total Product",
+                Total = total
+            });
+        }
+        [HttpGet]
+        [Route("Product/CountProductWithCategories")]
+        public IActionResult CountProductByCategoríes([FromQuery] List<string> categoryNames)
+        {
+            List<ProductInfo> productListWithDiscount = GetProductListWithDiscount();
+            List<Category> category = new List<Category>();
+            List<ProductInfo> productListWithCategories = productListWithDiscount
+            .Where(product => categoryNames.Any(categoryName =>
+                product.Category.Name.Equals(categoryName, StringComparison.OrdinalIgnoreCase)))
+            .Select(p => new ProductInfo
+            {
+                Id = p.Id,
+                Name = p.Name,
+                OriginalPrice = p.OriginalPrice,
+                PriceWithDiscount = p.PriceWithDiscount,
+                Category =p.Category,
+                Discount = p.Discount
+            }
+            )   
+            .ToList();
+
+            var categoryTotals = productListWithCategories
+            .GroupBy(product => product.Category.Name)
+            .Select(group => new
+            {
+                CategoryName = group.Key,
+                Total = group.Count()
+            })
+            .ToList();
+
+            int total = productListWithCategories.Count();
+            var result = new
+            {
+                CategoryTotals = categoryTotals,
+                Message = "Total Product",
+                Total = total
+            };
+            return Ok(result);
+        }
+        [HttpGet]
+        [Route("Product/CountProduct/{minPrice}&&{maxPrice}")]
+        public IActionResult CountProductByPriceRange(double minPrice,double maxPrice ) {
+            List<ProductInfo> productListWithPriceDiscount = GetProductListWithDiscount();
+            List<ProductInfo> productFound = productListWithPriceDiscount.Where(p => p.PriceWithDiscount >= minPrice && p.PriceWithDiscount <= maxPrice)
+                .Select(p => new ProductInfo
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    OriginalPrice = p.OriginalPrice,
+                    PriceWithDiscount = p.PriceWithDiscount,
+                    Discount = p.Discount
+                })
+                .ToList();
+            int total = productFound.Count();
+            if (total < 0)
+            {
+                return NotFound("Not found");
+            }
+            return Ok(new
+            {
+                Message = "Total Product",
+                Total = total,
+                Product = productFound
+            });
+        }
+
+        [HttpGet]
+        [Route("Product/CountProductByDiscountPeriod")]
+        public IActionResult CountProductByDiscountPeriod()
+        {
+            List<ProductInfo> productListWithDiscount = GetProductListWithDiscount();
+            List <ProductInfo> ProductByDiscountPeriod = productListWithDiscount.Where(p=>p.Discount?.StartDate <=DateTime.Now && 
+            p.Discount?.EndDate >= DateTime.Now)
+            .Select(product => new ProductInfo
+            {
+                Id = product.Id,
+                Name = product.Name,
+                OriginalPrice = product.OriginalPrice,
+                PriceWithDiscount = product.PriceWithDiscount,
+                Category = product.Category,
+                Discount = product.Discount
+            })
+            .ToList();
+
+            int total = ProductByDiscountPeriod.Count();
+            if (total < 0)
+            {
+                return NotFound("No products are currently on discount.");
+            }
+            var result = new
+            {
+                Message = "Total Product",
+                Total = total,
+                Product = ProductByDiscountPeriod,
+            };
+            return Ok(result);
+           
+        }
+        [HttpGet]
+        [Route("Product/CountProductDiscounted")]
+        public IActionResult CountProductDiscountedPrice()
+        {
+            List<ProductInfo> productListWithDiscount = GetProductListWithDiscount();
+            List<ProductInfo> productDiscounted= productListWithDiscount.Where(p=>p.PriceWithDiscount != p.OriginalPrice)
+                .ToList();
+            int totalProductDiscounted = productDiscounted.Count();
+            int totalProduct = productListWithDiscount.Count();
+            return Ok(new
+            {
+                Message1 = "Total product discounted",
+                ProductDiscounted = totalProductDiscounted,
+                Message2 = "Products not yet discounted",
+                ProductsNotYetDiscounted = totalProduct - totalProductDiscounted,
+            });
+        }
     }
 }
