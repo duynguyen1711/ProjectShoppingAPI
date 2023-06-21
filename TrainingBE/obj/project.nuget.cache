@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "XXM+aU2kIm10ut5OD2EmI39NJ4UMFrhqBz2KcBQHffHhWICULGaGdppVK7FvbI4dbvL02xMDLKy6jBSauSUtzw==",
+  "dgSpecHash": "86q8fqrQUKkGI3VHVevsdcMmuVwrp97MpPdOUTv3eoN1+2TrRS1lxMgoIk62PJr2BGNheF2LBlx6Ea5m11mvsw==",
   "success": true,
-  "projectFilePath": "D:\\BaiTap\\InternBE\\TrainingBE\\TrainingBE.csproj",
+  "projectFilePath": "D:\\InternBE\\Intern\\TrainingBE\\TrainingBE.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\ACER\\.nuget\\packages\\microsoft.extensions.apidescription.server\\3.0.0\\microsoft.extensions.apidescription.server.3.0.0.nupkg.sha512",
     "C:\\Users\\ACER\\.nuget\\packages\\microsoft.openapi\\1.2.3\\microsoft.openapi.1.2.3.nupkg.sha512",

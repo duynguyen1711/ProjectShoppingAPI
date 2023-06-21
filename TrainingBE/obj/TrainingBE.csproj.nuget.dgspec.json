@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\BaiTap\\InternBE\\TrainingBE\\TrainingBE.csproj": {}
+    "D:\\InternBE\\Intern\\TrainingBE\\TrainingBE.csproj": {}
   },
   "projects": {
-    "D:\\BaiTap\\InternBE\\TrainingBE\\TrainingBE.csproj": {
+    "D:\\InternBE\\Intern\\TrainingBE\\TrainingBE.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\BaiTap\\InternBE\\TrainingBE\\TrainingBE.csproj",
+        "projectUniqueName": "D:\\InternBE\\Intern\\TrainingBE\\TrainingBE.csproj",
         "projectName": "TrainingBE",
-        "projectPath": "D:\\BaiTap\\InternBE\\TrainingBE\\TrainingBE.csproj",
+        "projectPath": "D:\\InternBE\\Intern\\TrainingBE\\TrainingBE.csproj",
         "packagesPath": "C:\\Users\\ACER\\.nuget\\packages\\",
-        "outputPath": "D:\\BaiTap\\InternBE\\TrainingBE\\obj\\",
+        "outputPath": "D:\\InternBE\\Intern\\TrainingBE\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\ACER\\AppData\\Roaming\\NuGet\\NuGet.Config",
