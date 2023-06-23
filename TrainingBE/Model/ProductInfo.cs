@@ -7,7 +7,7 @@
         public double OriginalPrice { set; get; }
         public double PriceWithDiscount { set; get; }
         public Category Category { set; get; }
-        public Discount Discount { set; get; }
+        public List<Discount> Discount { set; get; }
 
     }
 }
