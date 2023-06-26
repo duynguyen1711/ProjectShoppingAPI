@@ -81,181 +81,63 @@ namespace TrainingBE.Controllers
             }
             return productListWithDiscount;
         }
-        [HttpGet]
-        [Route("test")]
-        public IActionResult GetAll()
+        // checkout
+        [HttpPost]
+        [Route("Product/process-payment")]
+        public IActionResult ProcessPayment([FromBody] List<int> idProduct)
         {
-            return Ok(productList);
-        }
-        // lay danh sach san pham gia da ap dung ma giam
-        [HttpGet]
-        [Route("Product")]
-        public IActionResult GetAllProductWithDiscount()
-        {
-            List<ProductInfo> productListWithDiscount = GetProductListWithDiscount();
-            return Ok(productListWithDiscount);
-        }
-        // sap xep theo gia 
-        [HttpGet]
-        [Route("Product/Sort/Price")]
-        public IActionResult GetAllProductSortByPrice()
-        {
-            List<ProductInfo> productListWithDiscount = GetProductListWithDiscount();
-            List<ProductInfo> productListSortByPriceIncrease = productListWithDiscount.OrderBy((p) => p.PriceWithDiscount).ToList();
-            List<ProductInfo> productListSortByPriceDecrease = productListWithDiscount.OrderByDescending((p) => p.PriceWithDiscount).ToList();
-            return new OkObjectResult(new
+            List<ProductInfo> productPriceWithDiscount = GetProductListWithDiscount();
+            List<ProductInfo> selectedProducts = productPriceWithDiscount.Where(p => idProduct.Contains(p.Id)).ToList();
+
+            double subtotal = CalculateSubtotal(selectedProducts);
+            double shippingFee = CalculateShippingFee(subtotal);
+            double totalAmount = subtotal + shippingFee;
+
+            var result = new
             {
-                productListSortByPriceIncrease,
-                productListSortByPriceDecrease
-            });
-
-
-        }
-        // sap xep theo ten 
-        [HttpGet]
-        [Route("Product/Sort/Name")]
-        public IActionResult GetAllProductSortByName()
-        {
-            List<ProductInfo> productListWithDiscount = GetProductListWithDiscount();
-            List<ProductInfo> productListSortByNameIncrease = productListWithDiscount.OrderBy((p) => p.Name.ToLower()).ToList();
-            List<ProductInfo> productListSortByNameDecrease = productListWithDiscount.OrderByDescending((p) => p.Name.ToLower()).ToList();
-            return new OkObjectResult(new
-            {
-                productListSortByNameIncrease,
-                productListSortByNameDecrease
-            });
-
-        }
-        // sap xep theo % giam
-        [HttpGet]
-        [Route("Product/Sort/Percentage")]
-        public IActionResult GetAllProductSortByPercentage()
-        {
-            List<ProductInfo> productListWithDiscount = GetProductListWithDiscount();
-            List<ProductInfo> productSortByPercentageIncrease = productListWithDiscount
-                                    .OrderBy(p => p.Discount.Count > 0 ? p.Discount.Where(d => CheckDay(d, today))
-                                        .Select(d => d.Percentage)
-                                        .DefaultIfEmpty(0)
-                                        .Max() : 0)
-                                    .ThenBy(p => p.Name)
-                                    .ToList();
-
-            List<ProductInfo> productSortByPercentageDecrease = productListWithDiscount
-                                    .OrderByDescending(p => p.Discount.Count > 0 ? p.Discount.Where(d => CheckDay(d, today))
-                                        .Select(d => d.Percentage)
-                                        .DefaultIfEmpty(0)
-                                        .Max() : 0)
-                                    .ThenByDescending(p => p.Name)
-                                    .ToList();
-
-
-            return new OkObjectResult(new
-            {
-                productSortByPercentageIncrease,
-                productSortByPercentageDecrease
-
-            });
-
-        }
-        // tim danh sach san pham theo 1 danh muc
-        [HttpGet]
-        [Route("Product/FindByCategoryName/{categoryName}")]
-        public IActionResult GetProductWithCategory(string categoryName)
-        {
-            Category category = new Category(categoryName);
-            List<ProductInfo> productListWithPriceDiscount = GetProductListWithDiscount();
-            List<ProductInfo> productListWithCategory = productList
-                 .Where(product => product.Category.Name.ToLower() == categoryName.ToLower())
-                 .Select(product => new ProductInfo
-                 {
-                     Id = product.Id,
-                     Name = product.Name,
-                     PriceWithDiscount = CalculateDiscountedPrice(product)
-                 })
-                .ToList();
-
-            if (productListWithCategory.Count > 0)
-            {
-                return Ok(productListWithCategory);
-            }
-            else
-            {
-                return NotFound($"No products found in the category '{categoryName}'.");
-            }
-        }
-        // tim san pham theo 1 ten 
-        [HttpGet]
-        [Route("Product/FindByProductName/{productName}")]
-        public IActionResult FindProductByName(string productName)
-        {
-            List<ProductInfo> productListWithPriceDiscount = GetProductListWithDiscount();
-            List<ProductInfo> productFound = productListWithPriceDiscount.Where(p => p.Name.ToLower().Contains(productName.ToLower())).ToList();
-            if (productFound.Count == 0)
-            {
-                return BadRequest("Not found");
-            }
-            return Ok(productFound);
-
-        }
-
-
-
-        // TÌM THEO KHOẢNG GIÁ 
-        [HttpGet]
-        [Route("Product/FindByPrice/{minPrice} && {maxPrice}")]
-        public IActionResult FindProductByPrice(double minPrice, double maxPrice)
-        {
-            List<ProductInfo> productListWithPriceDiscount = GetProductListWithDiscount();
-            List<ProductInfo> productFound = productListWithPriceDiscount.Where(p => p.PriceWithDiscount > minPrice && p.PriceWithDiscount <= maxPrice).ToList();
-            if (productFound.Count <= 0)
-            {
-                return NotFound($"Not found product have price between {minPrice} to {maxPrice}");
-            }
-            return Ok(productFound);
-        }
-        [HttpGet]
-        [Route("Product/FindByID/{productId}")]
-        // lay san pham theo id
-        public IActionResult FindProductById(int productId)
-        {
-            List<ProductInfo> productListWithPriceDiscount = GetProductListWithDiscount();
-            ProductInfo productFound = productListWithPriceDiscount.SingleOrDefault(p => p.Id == productId);
-            if (productFound == null)
-            {
-                return NotFound($"Don't find product have id {productId}");
-            }
-            return Ok(productFound);
-        }
-        // tim san pham nhieu categories
-        [HttpGet]
-        [Route("Product/FindByCategories")]
-        public IActionResult GetProductsWithCategories([FromQuery] List<string> categoryNames)
-        {
-            List<ProductInfo> productListWithPriceDiscount = GetProductListWithDiscount();
-
-            var categoriesWithProducts = productListWithPriceDiscount
-                .Where(product => categoryNames.Contains(product.Category.Name, StringComparer.OrdinalIgnoreCase))
-                .GroupBy(product => product.Category)
-                .Select(group => new
+                Product = selectedProducts.Select(product => new ProductInfo
                 {
-                    CategoryName = group.Key.Name,
-                    Products = group.ToList()
-                })
-                .ToList();
+                    Id = product.Id,
+                    Name = product.Name,
+                    OriginalPrice = product.OriginalPrice,
+                    PriceWithDiscount = product.PriceWithDiscount,
+                }),
+                Subtotal = subtotal,
+                ShippingFee = shippingFee,
+                TotalAmount = totalAmount
+            };
+            return Ok(result);
 
-            if (categoriesWithProducts.Count > 0)
-            {
-                return Ok(categoriesWithProducts);
-            }
-            else
-            {
-                return NotFound("No products found in the specified categories.");
-            }
         }
 
 
+        private double CalculateSubtotal(List<ProductInfo> selectedProducts)
+        {
+            double subtotal = 0;
 
+            subtotal = selectedProducts.Sum(p => p.PriceWithDiscount);
+            if (subtotal >= 200)
+            {
+                return subtotal = subtotal * 0.9;
+            }
+            return subtotal;
+        }
+        private double CalculateShippingFee(double subtotal)
+        {
+            double shippingFee = 3;
+            if (subtotal < 50)
+            {
+                return shippingFee;
+            }
 
-
+            if (subtotal < 70)
+            {
+                shippingFee = shippingFee - 1;
+            }
+            if (subtotal <= 100)
+                shippingFee = shippingFee - 1.5;
+            shippingFee = shippingFee - 2;
+            return shippingFee;
+        }
     }
 }
