@@ -80,172 +80,88 @@ namespace TrainingBE.Controllers
             return productListWithDiscount;
         }
 
-
-
-
-        //  đếm tong so san pham
-        [HttpGet]
-        [Route("Product/CountProduct")]
-        public IActionResult CountProduct()
+        // add product
+        [HttpPost]
+        [Route("Product/AddProduct")]
+        public IActionResult AddProduct([FromBody] ProductWithoutID productAdd)
         {
-            List<ProductInfo> productListWithDiscount = GetProductListWithDiscount();
-            int total = productListWithDiscount.Count();
-            return Ok(new
+            var productListSorted =productList.OrderBy(p => p.Id).ToList();
+            Product product = new Product
             {
-                Message = "Total Product",
-                Total = total
-            });
-        }
-        // đếm sản phẩm nhiều danh mục
-        [HttpGet]
-        [Route("Product/CountProductWithCategories")]
-        public IActionResult CountProductByCategoríes([FromQuery] List<string> categoryNames)
-        {
-            List<ProductInfo> productListWithDiscount = GetProductListWithDiscount();
-
-            var categoryProducts = productListWithDiscount
-            .Where(product => categoryNames.Contains(product.Category.Name, StringComparer.OrdinalIgnoreCase))
-            .GroupBy(product => product.Category)
-            .Select(group => new
-            {
-                Category = new
-                {
-                    Name = group.Key.Name,
-                    Products = group.ToList()
-                },
-                Total = group.Count()
-            })
-            .ToList();
-
-            int total = categoryProducts.Sum(c => c.Total);
-
-            var result = new
-            {
-                CategoryProducts = categoryProducts,
-                Message = "Total Products",
-                Total = total
+                Id = productListSorted.Max(p => p.Id) + 1,
+                Name = productAdd.Name,
+                Price = productAdd.Price,
+                Category = productAdd.Category,
+                Discount = productAdd.Discount.Where(d => CheckDay(d, today)).ToList(),
             };
-
-            return Ok(result);
+            productList.Add(product);
+            return Ok(productList);
         }
-        //đếm sản phẩm trong mức giá 
+        // List product
         [HttpGet]
-        [Route("Product/CountProductByMultiplePriceRanges")]
-        public IActionResult CountProductByMultiplePriceRanges([FromQuery] List<string> priceRanges)
+        [Route("/ListProduct")]
+        public IActionResult GetListProductWithDiscount()
         {
-            List<ProductInfo> productListWithPriceDiscount = GetProductListWithDiscount();
-
-            // Tạo dictionary để lưu trữ kết quả theo từng khoảng giá
-            Dictionary<string, List<ProductInfo>> productByPriceRange = new Dictionary<string, List<ProductInfo>>();
-
-            // Lặp qua từng khoảng giá và tìm các sản phẩm tương ứng
-            foreach (var range in priceRanges)
+            List<ProductInfo> productListWithDiscount = GetProductListWithDiscount();
+            return Ok(productListWithDiscount);
+        }
+        //Update product
+        [HttpPut]
+        [Route("Product/UdapteProduct")]
+        public IActionResult UpdateProduct(int id, [FromBody] ProductWithoutID updatedProductInfo)
+        {
+           int index = productList.FindIndex(p=>p.Id == id);
+           if (index  != -1)
             {
-                // Phân tách khoảng giá thành MinPrice và MaxPrice
-                var rangeValues = range.Split('-');
-                if (rangeValues.Length != 2)
+                Product productToUpdate = productList[index];
+                productToUpdate.Name = updatedProductInfo.Name;
+                productToUpdate.Price = updatedProductInfo.Price;
+                productToUpdate.Category = updatedProductInfo.Category;
+                productToUpdate.Discount = updatedProductInfo.Discount;
+                return Ok(new
                 {
-                    // Nếu không đúng định dạng khoảng giá, bỏ qua và chuyển sang khoảng giá tiếp theo
-                    continue;
-                }
+                    Message = "Product updated successfully.",
+                    Product = productToUpdate
+                });
+            }
+            return NotFound("Product not found.");
 
-                if (double.TryParse(rangeValues[0], out double minPrice) && double.TryParse(rangeValues[1], out double maxPrice))
+        }
+        //delete
+        [HttpDelete]
+        [Route("Product/DeleteProduct")]
+        public IActionResult DeleteProduct (int id)
+        {
+            int index = productList.FindIndex(p => p.Id == id);
+            if (index != -1)
+            {
+                productList.RemoveAt(index);
+                return Ok(new
                 {
-                    // Tạo tên khoảng giá
-                    string rangeName = $"{minPrice}-{maxPrice}";
-
-                    // Lấy danh sách sản phẩm trong khoảng giá
-                    List<ProductInfo> productsInRange = productListWithPriceDiscount
-                        .Where(p => p.PriceWithDiscount >= minPrice && p.PriceWithDiscount <= maxPrice)
-                        .ToList();
-
-                    // Thêm vào dictionary
-                    productByPriceRange[rangeName] = productsInRange;
-                }
+                    Message = "Deleted successfully.",
+                    Product = GetProductListWithDiscount()
+                });
             }
 
-            return Ok(new
-            {
-                Message = "Total Products by Price Ranges",
-                ProductByPriceRange = productByPriceRange
-            });
+            return NotFound("Product not found.");
         }
-        //đếm sản phẩm theo % giảm
+        //detail product
         [HttpGet]
-        [Route("Product/CountProductByDiscountPeriod")]
-        public IActionResult CountProductByDiscountPeriod()
+        [Route("Product/{id}")]
+        public IActionResult GetProductByID(int id)
         {
             List<ProductInfo> productListWithDiscount = GetProductListWithDiscount();
+            var productFound = productListWithDiscount.FirstOrDefault(p => p.Id == id);
 
-            List<ProductInfo> productsWithValidDiscount = productListWithDiscount.Where(p => p.Discount.Any(d => CheckDay(d, today)))
-            .ToList();
-
-            int total = productsWithValidDiscount.Count();
-            if (total < 0)
+            if (productFound != null)
             {
-                return NotFound("No products are currently on discount.");
+                return Ok(new
+                {
+                    Message = "Product Found",
+                    Product = productFound,
+                });
             }
-            var result = new
-            {
-                Message = "Total Product",
-                Total = total,
-                Product = productsWithValidDiscount.Select(product => new ProductInfo
-                {
-                    Id = product.Id,
-                    Name = product.Name,
-                    OriginalPrice = product.OriginalPrice,
-                    PriceWithDiscount = product.PriceWithDiscount,
-                    Category = product.Category,
-                    PercentageDiscount = product.Discount.Where(d => CheckDay(d, today))
-                        .Select(d => d.Percentage)
-                        .ToList(),
-                    Discount = product.Discount.Where(d =>CheckDay(d,today)).ToList<Discount>()
-                })
-            };
-            return Ok(result);
-
+            return NotFound("Product not found.");
         }
-
-        //đếm sản phẩm đã giảm giá và chưa giảm
-        [HttpGet]
-        [Route("Product/CountProductDiscounted")]
-        public IActionResult CountProductDiscountedPrice()
-        {
-            List<ProductInfo> productListWithDiscount = GetProductListWithDiscount();
-            List<ProductInfo> productDiscounted = productListWithDiscount.Where(p => p.PriceWithDiscount < p.OriginalPrice && p.PriceWithDiscount > 0 &&p.OriginalPrice > 0).ToList();
-            List<ProductInfo> productNotDiscounted = productListWithDiscount.Except(productDiscounted).ToList();
-
-
-
-            int totalProductDiscounted = productDiscounted.Count();
-            int totalProduct = productListWithDiscount.Count();
-            return Ok(new
-            {
-                Message1 = "Total product discounted",
-                ProductDiscounted = productDiscounted.Select(product => new ProductInfo
-                {
-                    Id = product.Id,
-                    Name = product.Name,
-                    OriginalPrice = product.OriginalPrice,
-                    PriceWithDiscount = product.PriceWithDiscount,
-                    Category = product.Category,
-                    PercentageDiscount = product.Discount.Where(d => CheckDay(d, today))
-                        .Select(d => d.Percentage)
-                        .ToList(),
-                    Discount = product.Discount.Where(d => CheckDay(d, today)).ToList<Discount>()
-                }),
-                TotalProductDiscounted = totalProductDiscounted,
-                Message2 = "Products not yet discounted",
-                ProductNotDiscounted = productNotDiscounted.Select(product => new ProductInfo
-                {
-                    Id = product.Id,
-                    Name = product.Name,
-                    OriginalPrice = product.OriginalPrice,
-                    PriceWithDiscount = product.PriceWithDiscount,
-                    Category = product.Category,
-                }),
-                TotalProductsNotDiscounted = totalProduct - totalProductDiscounted,
-            });
-        }
-    }
+    } 
 }
