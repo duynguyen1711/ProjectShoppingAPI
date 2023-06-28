@@ -114,7 +114,21 @@ namespace TrainingBE.Controllers
 
 
         }
+        // sap xep theo ten 
+        [HttpGet]
+        [Route("Product/Sort/Name")]
+        public IActionResult GetAllProductSortByName()
+        {
+            List<ProductInfo> productListWithDiscount = GetProductListWithDiscount();
+            List<ProductInfo> productListSortByNameIncrease = productListWithDiscount.OrderBy((p) => p.Name.ToLower()).ToList();
+            List<ProductInfo> productListSortByNameDecrease = productListWithDiscount.OrderByDescending((p) => p.Name.ToLower()).ToList();
+            return new OkObjectResult(new
+            {
+                productListSortByNameIncrease,
+                productListSortByNameDecrease
+            });
 
+        }
 
 
         //  đếm tong so san pham
