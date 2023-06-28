@@ -132,12 +132,44 @@ namespace TrainingBE.Controllers
         }
 
         // đếm sản phẩm nhiều danh mục
-        // sap xep theo % giam
+        
         [HttpGet]
         [Route("Product/CountProductWithCategories")]
         public IActionResult CountProductByCategoríes([FromQuery] List<string> categoryNames)
         {
             List<ProductInfo> productListWithDiscount = GetProductListWithDiscount();
+
+            var categoryProducts = productListWithDiscount
+            .Where(product => categoryNames.Contains(product.Category.Name, StringComparer.OrdinalIgnoreCase))
+            .GroupBy(product => product.Category)
+            .Select(group => new
+            {
+                Category = new
+                {
+                    Name = group.Key.Name,
+                    Products = group.ToList()
+                },
+                Total = group.Count()
+            })
+            .ToList();
+
+            int total = categoryProducts.Sum(c => c.Total);
+
+            var result = new
+            {
+                CategoryProducts = categoryProducts,
+                Message = "Total Products",
+                Total = total
+            };
+
+            return Ok(result);
+        }
+        // sap xep theo % giam
+        [HttpGet]
+        [Route("Product/Sort/Percentage")]
+        public IActionResult GetAllProductSortByPercentage()
+        {
+              List<ProductInfo> productListWithDiscount = GetProductListWithDiscount();
             List<ProductInfo> productSortByPercentageIncrease = productListWithDiscount
                                     .OrderBy(p => p.Discount.Count > 0 ? p.Discount.Where(d => CheckDay(d, today))
                                         .Select(d => d.Percentage)
@@ -161,20 +193,6 @@ namespace TrainingBE.Controllers
                 productSortByPercentageDecrease
 
             });
-
-            var categoryProducts = productListWithDiscount
-            .Where(product => categoryNames.Contains(product.Category.Name, StringComparer.OrdinalIgnoreCase))
-            .GroupBy(product => product.Category)
-            .Select(group => new
-            {
-                Category = new
-                {
-                    Name = group.Key.Name,
-                    Products = group.ToList()
-                },
-                Total = group.Count()
-            })
-            .ToList();
         }
 
         // tim danh sach san pham theo 1 danh muc
