@@ -8,7 +8,7 @@
         public double PriceWithDiscount { set; get; }
         public Category Category { set; get; }
         public List<Discount> Discount { set; get; }
-        public List<double> PercentageDiscount { set; get; }
+        public List <double> PercentageDiscount { set; get; }
 
     }
 }
