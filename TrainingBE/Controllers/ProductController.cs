@@ -454,7 +454,90 @@ namespace TrainingBE.Controllers
             shippingFee = shippingFee - 2;
             return shippingFee;
         }
+        // add product
+        [HttpPost]
+        [Route("Product/AddProduct")]
+        public IActionResult AddProduct([FromBody] ProductWithoutID productAdd)
+        {
+            var productListSorted = productList.OrderBy(p => p.Id).ToList();
+            Product product = new Product
+            {
+                Id = productListSorted.Max(p => p.Id) + 1,
+                Name = productAdd.Name,
+                Price = productAdd.Price,
+                Category = productAdd.Category,
+                Discount = productAdd.Discount.Where(d => CheckDay(d, today)).ToList(),
+            };
+            productList.Add(product);
+            return Ok(productList);
+        }
+        // List product
+        [HttpGet]
+        [Route("/ListProduct")]
+        public IActionResult GetListProductWithDiscount()
+        {
+            List<ProductInfo> productListWithDiscount = GetProductListWithDiscount();
+            return Ok(productListWithDiscount);
+        }
+        //Update product
+        [HttpPut]
+        [Route("Product/UdapteProduct")]
+        public IActionResult UpdateProduct(int id, [FromBody] ProductWithoutID updatedProductInfo)
+        {
+            int index = productList.FindIndex(p => p.Id == id);
+            if (index != -1)
+            {
+                Product productToUpdate = productList[index];
+                productToUpdate.Name = updatedProductInfo.Name;
+                productToUpdate.Price = updatedProductInfo.Price;
+                productToUpdate.Category = updatedProductInfo.Category;
+                productToUpdate.Discount = updatedProductInfo.Discount;
+                return Ok(new
+                {
+                    Message = "Product updated successfully.",
+                    Product = productToUpdate
+                });
+            }
+            return NotFound("Product not found.");
 
+        }
+        //delete
+        [HttpDelete]
+        [Route("Product/DeleteProduct")]
+        public IActionResult DeleteProduct(int id)
+        {
+            int index = productList.FindIndex(p => p.Id == id);
+            if (index != -1)
+            {
+                productList.RemoveAt(index);
+                return Ok(new
+                {
+                    Message = "Deleted successfully.",
+                    Product = GetProductListWithDiscount()
+                });
+            }
+
+            return NotFound("Product not found.");
+        }
+        //detail product
+        [HttpGet]
+        [Route("Product/{id}")]
+        public IActionResult GetProductByID(int id)
+        {
+            List<ProductInfo> productListWithDiscount = GetProductListWithDiscount();
+            var productFound = productListWithDiscount.FirstOrDefault(p => p.Id == id);
+
+            if (productFound != null)
+            {
+                return Ok(new
+                {
+                    Message = "Product Found",
+                    Product = productFound,
+                });
+            }
+            return NotFound("Product not found.");
+        }
+    }
 
 
     }
