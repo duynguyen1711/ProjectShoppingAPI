@@ -539,6 +539,4 @@ namespace TrainingBE.Controllers
         }
     }
 
-
-    }
 }
