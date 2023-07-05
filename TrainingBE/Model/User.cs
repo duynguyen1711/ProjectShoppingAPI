@@ -1,7 +1,7 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
 
-namespace TrainingBE
+namespace TrainingBE.Model
 {
     public class User
     {
@@ -18,7 +18,7 @@ namespace TrainingBE
         public string numberPhone { set; get; }
         public User()
         {
-            this.status = UserStatus.active;
+            status = UserStatus.active;
         }
         public User(string userName, string password, string email, string numberPhone)
         {
