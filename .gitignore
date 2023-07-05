@@ -1,0 +1,9 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/.vs/TrainingBE/DesignTimeBuild/.dtbcache.v2
+/.vs/TrainingBE/FileContentIndex/09e4e33f-91df-441a-8bff-8fdff4b91013.vsidx
+/.vs/TrainingBE/FileContentIndex/172c1fd8-e51d-4b68-a43b-fb7ae702c17b.vsidx
+/.vs/TrainingBE/FileContentIndex/bd89a6d5-12f0-41f2-b923-4a5da2556a6a.vsidx
+/.vs/TrainingBE/FileContentIndex/fe5bacb1-a214-4fb9-84cf-d3e142b2856f.vsidx
