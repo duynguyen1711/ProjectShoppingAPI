@@ -1,12 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using  TrainingBE;
 using System.Collections.Generic;
 using System;
 using System.Linq;
-using static TrainingBE.Model.User;
+using static TrainingBE.User;
 using static TrainingBE.UserHelpers;
 using System.Text;
 using System.Security.Cryptography;
-using TrainingBE.Model;
 
 namespace TrainingBE.Controllers
 {
