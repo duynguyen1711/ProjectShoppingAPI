@@ -1,5 +1,10 @@
-var builder = WebApplication.CreateBuilder(args);
+using Microsoft.EntityFrameworkCore;
+using TrainingBE.Data;
 
+var builder = WebApplication.CreateBuilder(args);
+System.Net.ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
+
+builder.Services.AddDbContext<MyDBContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("MyDB")));
 // Add services to the container.
 
 builder.Services.AddControllers();
