@@ -10,6 +10,5 @@
         }
         public int Id { get; set; }
         public PaymentType Type { get; set; }
-       
     }
 }
