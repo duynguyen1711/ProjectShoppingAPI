@@ -2,9 +2,9 @@
 
 namespace TrainingBE.Repository
 {
-    public interface IUnitOfWork
+    public interface IUnitOfWork: IDisposable
     {
-        IRepository<Product> ProductRepository { get; }
+        IProductRepository ProductRepository { get; }
         void Save();
     }
 }

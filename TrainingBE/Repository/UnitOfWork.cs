@@ -6,20 +6,20 @@ namespace TrainingBE.Repository
     public class UnitOfWork : IUnitOfWork
     {
         private readonly MyDBContext _context;
-        private IRepository<Product> _productRepository;
+        private IProductRepository _productRepository;
 
         public UnitOfWork(MyDBContext context)
         {
             _context = context;
         }
 
-        public IRepository<Product> ProductRepository
+        public IProductRepository ProductRepository
         {
             get
             {
                 if (_productRepository == null)
                 {
-                    _productRepository = new Repository<Product>(_context);
+                    _productRepository = new ProductRepository(_context);
                 }
                 return _productRepository;
             }
@@ -28,6 +28,10 @@ namespace TrainingBE.Repository
         public void Save()
         {
             _context.SaveChanges();
+        }
+        public void Dispose()
+        {
+            _context.Dispose();
         }
     }
 }
