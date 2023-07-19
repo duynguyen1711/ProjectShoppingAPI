@@ -7,6 +7,7 @@ namespace TrainingBE.Repository
     {
         private readonly MyDBContext _context;
         private IProductRepository _productRepository;
+        private IUserRepository _userRepository;
 
         public UnitOfWork(MyDBContext context)
         {
@@ -22,6 +23,17 @@ namespace TrainingBE.Repository
                     _productRepository = new ProductRepository(_context);
                 }
                 return _productRepository;
+            }
+        }
+        public IUserRepository UserRepository
+        {
+            get
+            {
+                if (_userRepository == null)
+                {
+                    _userRepository = new UserRepository(_context);
+                }
+                return _userRepository;
             }
         }
 
