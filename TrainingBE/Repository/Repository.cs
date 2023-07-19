@@ -7,8 +7,8 @@ namespace TrainingBE.Repository
     public class Repository<TEntity> : IRepository<TEntity> where TEntity : class
     {
         private MyDBContext _context =null;
-        private readonly DbSet<TEntity> _dbSet;
-       
+        protected readonly DbSet<TEntity> _dbSet;
+
         public Repository()
         {
             _context = new MyDBContext(new DbContextOptions<MyDBContext>());

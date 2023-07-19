@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using TrainingBE.Data;
 using TrainingBE.Model;
 using TrainingBE.Repository;
+using TrainingBE.Service;
 
 namespace TrainingBE.Controllers
 {
@@ -10,22 +11,22 @@ namespace TrainingBE.Controllers
     [ApiController]
     public class ProductNewController : ControllerBase
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IProductService _productService;
 
-        public ProductNewController(IUnitOfWork unitOfWork)
+        public ProductNewController(IProductService productService)
         {
-            _unitOfWork = unitOfWork;
+            _productService = productService;
         }
         [HttpGet]
         public ActionResult Index()
         {
-            var model =_unitOfWork.ProductRepository.GetAll();
+            var model =_productService.GetAllProducts();
             return Ok(model);
         }
         [HttpGet]
         [Route("{id}")]
         public ActionResult GetByID(int id ) {
-            var model = _unitOfWork.ProductRepository.GetById(id);
+            var model = _productService.GetProductById(id);
             if (model == null)
             {
                 return NotFound("Not Found");
@@ -34,47 +35,41 @@ namespace TrainingBE.Controllers
         }
         [HttpPost]
         public ActionResult AddProduct( Product product) {
-            if (ModelState.IsValid)
+            try
             {
-                _unitOfWork.ProductRepository.Add(product);
-                _unitOfWork.ProductRepository.Save();
-                return Ok("Add success");
+                _productService.AddProduct(product);
+                return Ok("Product added successfully.");
             }
-            return BadRequest("Add failed");
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
         [HttpPut("{id}")]
         public IActionResult UpdateProduct(int id, Product product)
         {
-            var existingProduct = _unitOfWork.ProductRepository.GetById(id);
-
-            if (existingProduct == null)
+            try
             {
-                return NotFound(); 
+                _productService.UpdateProduct(id, product);
+                return Ok("Product updated successfully.");
             }
-
-            existingProduct.Name = product.Name;
-            existingProduct.Price = product.Price;
-            existingProduct.CategoryID = product.CategoryID;
-
-            _unitOfWork.ProductRepository.Update(existingProduct);
-            _unitOfWork.ProductRepository.Save();
-
-            return Ok(existingProduct); 
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
         [HttpDelete("{id}")]
         public IActionResult DeleteProduct(int id)
-        {
-            var existingProduct = _unitOfWork.ProductRepository.GetById(id);
-
-            if (existingProduct == null)
+        {    
+            try
             {
-                return NotFound(); 
+                _productService.DeleteProduct(id);
+                return Ok("Product deleted successfully.");
             }
-
-            _unitOfWork.ProductRepository.Delete(existingProduct);
-            _unitOfWork.ProductRepository.Save();
-
-            return NoContent(); 
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }
