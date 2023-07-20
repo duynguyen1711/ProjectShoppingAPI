@@ -8,7 +8,7 @@ namespace TrainingBE.Repository
     {
         private MyDBContext _context =null;
         protected readonly DbSet<TEntity> _dbSet;
-
+       
         public Repository()
         {
             _context = new MyDBContext(new DbContextOptions<MyDBContext>());

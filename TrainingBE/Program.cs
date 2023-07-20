@@ -9,6 +9,7 @@ System.Net.ServicePointManager.ServerCertificateValidationCallback = delegate { 
 
 builder.Services.AddDbContext<MyDBContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("MyDB")));
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 
 builder.Services.AddScoped<IProductService, ProductService>();
 // Add services to the container.
