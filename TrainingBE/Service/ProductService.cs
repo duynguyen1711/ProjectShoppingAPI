@@ -14,21 +14,12 @@ namespace TrainingBE.Service
 
         public void AddProduct(Product product)
         {
-            if (!ValidateAddProduct(product, out string errorMessage))
-            {
-                throw new ArgumentException(errorMessage);
-            }
-
             _unitOfWork.ProductRepository.Add(product);
             _unitOfWork.Save();
         }
 
         public void DeleteProduct(int id)
-        {
-            if (id < 0)
-            {
-                throw new ArgumentException("Invalid ID. ID must be a non-negative number.");
-            }
+        { 
             var existingProduct = _unitOfWork.ProductRepository.GetById(id);
 
             if (existingProduct == null)
@@ -50,22 +41,24 @@ namespace TrainingBE.Service
             return _unitOfWork.ProductRepository.GetById(id);
         }
 
-        public void UpdateProduct(int id, Product product)
+        public bool UpdateProduct(int id, Product product, out string errorMessage)
         {
-            if (id < 0)
+            if (id <= 0)
             {
-                throw new ArgumentException("Invalid ID. ID must be a non-negative number.");
+                errorMessage = "Invalid ID. ID must be a non-negative number.";
+                return false;
             }
             var existingProduct = _unitOfWork.ProductRepository.GetById(id);
 
             if (existingProduct == null)
             {
-                throw new ArgumentException("Product not found");
+                errorMessage = "Product not found";
+                return false;
             }
 
-            if (!ValidateUpdateProduct(existingProduct, product, out string errorMessage))
+            if (!ValidateUpdateProduct(existingProduct, product, out errorMessage))
             {
-                throw new ArgumentException(errorMessage);
+                return false;
             }
 
             existingProduct.Name = product.Name;
@@ -74,9 +67,12 @@ namespace TrainingBE.Service
 
             _unitOfWork.ProductRepository.Update(existingProduct);
             _unitOfWork.Save();
+
+            errorMessage = string.Empty;
+            return true;
         }
 
-        private bool ValidateAddProduct(Product product, out string errorMessage)
+        public bool ValidateAddProduct(Product product, out string errorMessage)
         {
             if (string.IsNullOrWhiteSpace(product.Name))
             {
@@ -108,7 +104,7 @@ namespace TrainingBE.Service
             errorMessage = string.Empty;
             return true;
         }
-        private bool ValidateUpdateProduct(Product existingProduct,Product updatedProduct, out string errorMessage)
+        public bool ValidateUpdateProduct(Product existingProduct,Product updatedProduct, out string errorMessage)
         {
             if (string.IsNullOrWhiteSpace(updatedProduct.Name))
             {

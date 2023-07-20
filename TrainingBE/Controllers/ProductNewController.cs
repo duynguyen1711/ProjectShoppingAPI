@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Azure.Core;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using TrainingBE.Data;
 using TrainingBE.Model;
@@ -26,6 +27,10 @@ namespace TrainingBE.Controllers
         [HttpGet]
         [Route("{id}")]
         public ActionResult GetByID(int id ) {
+            if (id <= 0)
+            {
+                return BadRequest("Invalid ID. ID must be a non-negative number.");
+            }
             var model = _productService.GetProductById(id);
             if (model == null)
             {
@@ -35,6 +40,11 @@ namespace TrainingBE.Controllers
         }
         [HttpPost]
         public ActionResult AddProduct( Product product) {
+            string errorMessage;
+            if (!_productService.ValidateAddProduct(product, out errorMessage))
+            {
+                return BadRequest(errorMessage);
+            }
             try
             {
                 _productService.AddProduct(product);
@@ -48,19 +58,21 @@ namespace TrainingBE.Controllers
         [HttpPut("{id}")]
         public IActionResult UpdateProduct(int id, Product product)
         {
-            try
+            string errorMessage;
+            if (!_productService.UpdateProduct(id, product, out errorMessage))
             {
-                _productService.UpdateProduct(id, product);
-                return Ok("Product updated successfully.");
+                return BadRequest(errorMessage);
             }
-            catch (ArgumentException ex)
-            {
-                return BadRequest(ex.Message);
-            }
+
+            return Ok("Product updated successfully.");
         }
         [HttpDelete("{id}")]
         public IActionResult DeleteProduct(int id)
-        {    
+        {
+            if (id <= 0)
+            {
+                return BadRequest("Invalid ID. ID must be a non-negative number.");
+            }
             try
             {
                 _productService.DeleteProduct(id);
