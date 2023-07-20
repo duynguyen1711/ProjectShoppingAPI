@@ -7,9 +7,9 @@ namespace TrainingBE.Model
     {
         public enum UserStatus
         {
-            active,
-            inactive,
-            delete
+            active =0,
+            inactive = 1,
+            delete=2
         }
         public enum Role
         {
