@@ -141,6 +141,24 @@ namespace TrainingBE.Service
             errorMessage = string.Empty;
             return true;
         }
+        public IEnumerable<Product> GetAllProductsIncludingCategory()
+        {
+            return _unitOfWork.ProductRepository.GetAllProductsIncludingCategory();
+        }
+
+        public List<Product> GetProductsByCategoryIds(List<int> categoryIds)
+        {
+            var result = new List<Product>();
+
+            foreach (int categoryId in categoryIds)
+            {
+                var productsInCategory = _unitOfWork.ProductRepository.GetProductsByCategoryId(categoryId);
+                result.AddRange(productsInCategory);
+            }
+
+            return result;
+        }
+
 
     }
 

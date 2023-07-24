@@ -7,6 +7,8 @@ namespace TrainingBE.Repository
         IProductRepository ProductRepository { get; }
         IUserRepository UserRepository { get; }
         ICategoryRepository CategoryRepository { get; }
+        IDiscountRepository DiscountRepository { get; }
+        IProductDiscountRepository ProductDiscountRepository { get; }
         void Save();
     }
 }

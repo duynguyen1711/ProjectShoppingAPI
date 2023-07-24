@@ -9,6 +9,8 @@ namespace TrainingBE.Repository
         private IProductRepository _productRepository;
         private ICategoryRepository _categoryRepository;
         private IUserRepository _userRepository;
+        private IDiscountRepository _discountRepository;
+        private IProductDiscountRepository _productDiscountRepository;
 
         public UnitOfWork(MyDBContext context)
         {
@@ -46,6 +48,28 @@ namespace TrainingBE.Repository
                     _userRepository = new UserRepository(_context);
                 }
                 return _userRepository;
+            }
+        }
+        public IDiscountRepository DiscountRepository
+        {
+            get
+            {
+                if (_discountRepository == null)
+                {
+                    _discountRepository = new DiscountRepository(_context);
+                }
+                return _discountRepository;
+            }
+        }
+        public IProductDiscountRepository ProductDiscountRepository
+        {
+            get
+            {
+                if (_productDiscountRepository == null)
+                {
+                    _productDiscountRepository = new ProductDiscountRepository(_context);
+                }
+                return _productDiscountRepository;
             }
         }
 

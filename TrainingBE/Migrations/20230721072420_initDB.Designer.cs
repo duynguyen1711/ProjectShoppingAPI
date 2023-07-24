@@ -12,8 +12,8 @@ using TrainingBE.Data;
 namespace TrainingBE.Migrations
 {
     [DbContext(typeof(MyDBContext))]
-    [Migration("20230718043032_DBFix")]
-    partial class DBFix
+    [Migration("20230721072420_initDB")]
+    partial class initDB
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -56,15 +56,10 @@ namespace TrainingBE.Migrations
                     b.Property<double>("Percentage")
                         .HasColumnType("float");
 
-                    b.Property<int?>("ProductId")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ProductId");
 
                     b.ToTable("Discounts");
                 });
@@ -183,6 +178,10 @@ namespace TrainingBE.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("DiscountId");
+
+                    b.HasIndex("ProductId");
+
                     b.ToTable("Products_Discount");
                 });
 
@@ -225,25 +224,49 @@ namespace TrainingBE.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("TrainingBE.Model.Discount", b =>
-                {
-                    b.HasOne("TrainingBE.Model.Product", null)
-                        .WithMany("Discount")
-                        .HasForeignKey("ProductId");
-                });
-
             modelBuilder.Entity("TrainingBE.Model.Product", b =>
                 {
                     b.HasOne("TrainingBE.Model.Category", "Category")
-                        .WithMany()
-                        .HasForeignKey("CategoryID");
+                        .WithMany("Products")
+                        .HasForeignKey("CategoryID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Category");
                 });
 
+            modelBuilder.Entity("TrainingBE.Model.Product_Discount", b =>
+                {
+                    b.HasOne("TrainingBE.Model.Discount", "Discount")
+                        .WithMany("Product_Discounts")
+                        .HasForeignKey("DiscountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TrainingBE.Model.Product", "Product")
+                        .WithMany("Product_Discounts")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Discount");
+
+                    b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("TrainingBE.Model.Category", b =>
+                {
+                    b.Navigation("Products");
+                });
+
+            modelBuilder.Entity("TrainingBE.Model.Discount", b =>
+                {
+                    b.Navigation("Product_Discounts");
+                });
+
             modelBuilder.Entity("TrainingBE.Model.Product", b =>
                 {
-                    b.Navigation("Discount");
+                    b.Navigation("Product_Discounts");
                 });
 #pragma warning restore 612, 618
         }

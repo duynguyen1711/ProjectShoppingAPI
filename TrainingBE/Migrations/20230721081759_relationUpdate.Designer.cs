@@ -12,8 +12,8 @@ using TrainingBE.Data;
 namespace TrainingBE.Migrations
 {
     [DbContext(typeof(MyDBContext))]
-    [Migration("20230706080141_DBUpdate")]
-    partial class DBUpdate
+    [Migration("20230721081759_relationUpdate")]
+    partial class relationUpdate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -56,15 +56,10 @@ namespace TrainingBE.Migrations
                     b.Property<double>("Percentage")
                         .HasColumnType("float");
 
-                    b.Property<int?>("ProductId")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ProductId");
 
                     b.ToTable("Discounts");
                 });
@@ -93,6 +88,10 @@ namespace TrainingBE.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("PaymentID");
+
+                    b.HasIndex("UserID");
 
                     b.ToTable("Orders");
                 });
@@ -123,6 +122,10 @@ namespace TrainingBE.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("OrderId");
+
+                    b.HasIndex("ProductId");
+
                     b.ToTable("OrderItems");
                 });
 
@@ -150,7 +153,7 @@ namespace TrainingBE.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("CategoryId")
+                    b.Property<int>("CategoryID")
                         .HasColumnType("int");
 
                     b.Property<string>("Name")
@@ -162,7 +165,7 @@ namespace TrainingBE.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CategoryId");
+                    b.HasIndex("CategoryID");
 
                     b.ToTable("Products");
                 });
@@ -182,6 +185,10 @@ namespace TrainingBE.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("DiscountId");
+
+                    b.HasIndex("ProductId");
 
                     b.ToTable("Products_Discount");
                 });
@@ -225,27 +232,92 @@ namespace TrainingBE.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("TrainingBE.Model.Discount", b =>
+            modelBuilder.Entity("TrainingBE.Model.Order", b =>
                 {
-                    b.HasOne("TrainingBE.Model.Product", null)
-                        .WithMany("Discount")
-                        .HasForeignKey("ProductId");
+                    b.HasOne("TrainingBE.Model.Payment", "Payment")
+                        .WithMany()
+                        .HasForeignKey("PaymentID")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("TrainingBE.Model.User", "User")
+                        .WithMany("Orders")
+                        .HasForeignKey("UserID")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Payment");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("TrainingBE.Model.OrderItem", b =>
+                {
+                    b.HasOne("TrainingBE.Model.Order", "Order")
+                        .WithMany()
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TrainingBE.Model.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Order");
+
+                    b.Navigation("Product");
                 });
 
             modelBuilder.Entity("TrainingBE.Model.Product", b =>
                 {
                     b.HasOne("TrainingBE.Model.Category", "Category")
-                        .WithMany()
-                        .HasForeignKey("CategoryId")
+                        .WithMany("Products")
+                        .HasForeignKey("CategoryID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Category");
                 });
 
+            modelBuilder.Entity("TrainingBE.Model.Product_Discount", b =>
+                {
+                    b.HasOne("TrainingBE.Model.Discount", "Discount")
+                        .WithMany("Product_Discounts")
+                        .HasForeignKey("DiscountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TrainingBE.Model.Product", "Product")
+                        .WithMany("Product_Discounts")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Discount");
+
+                    b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("TrainingBE.Model.Category", b =>
+                {
+                    b.Navigation("Products");
+                });
+
+            modelBuilder.Entity("TrainingBE.Model.Discount", b =>
+                {
+                    b.Navigation("Product_Discounts");
+                });
+
             modelBuilder.Entity("TrainingBE.Model.Product", b =>
                 {
-                    b.Navigation("Discount");
+                    b.Navigation("Product_Discounts");
+                });
+
+            modelBuilder.Entity("TrainingBE.Model.User", b =>
+                {
+                    b.Navigation("Orders");
                 });
 #pragma warning restore 612, 618
         }

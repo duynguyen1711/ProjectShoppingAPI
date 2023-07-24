@@ -11,5 +11,8 @@ namespace TrainingBE.Service
         IEnumerable<Product> GetAllProducts();
         bool ValidateUpdateProduct(Product existingProduct, Product updatedProduct, out string errorMessage);
         bool ValidateAddProduct(Product product, out string errorMessage);
+        IEnumerable<Product> GetAllProductsIncludingCategory();
+        List<Product> GetProductsByCategoryIds(List<int> categoryIds);
+
     }
 }

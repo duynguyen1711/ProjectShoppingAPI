@@ -13,16 +13,34 @@ namespace TrainingBE.Controllers
     public class ProductNewController : ControllerBase
     {
         private readonly IProductService _productService;
-
+        
         public ProductNewController(IProductService productService)
         {
             _productService = productService;
+           
         }
+        //[HttpGet]
+        //public ActionResult Index()
+        //{
+        //    var model =_productService.GetAllProducts();
+        //    return Ok(model);
+        //}
         [HttpGet]
-        public ActionResult Index()
+        public ActionResult<IEnumerable<Product>> GetAllProductsIncludingCategory()
         {
-            var model =_productService.GetAllProducts();
-            return Ok(model);
+            var products = _productService.GetAllProductsIncludingCategory();
+            var result = products.Select(p => new
+            {
+                Id = p.Id,
+                Name = p.Name,
+                Price = p.Price,
+                Category = new
+                {
+                    Id = p.Category.Id,
+                    Name = p.Category.Name
+                }
+            });
+            return Ok(result);
         }
         [HttpGet]
         [Route("{id}")]
@@ -37,6 +55,17 @@ namespace TrainingBE.Controllers
                 return NotFound("Not Found");
             }
             return Ok(model);
+        }
+        [HttpGet("productsByCategories")]
+        public IActionResult GetProductsByCategories([FromQuery] List<int> categoryIds)
+        {
+            if (categoryIds == null || categoryIds.Count == 0)
+            {
+                return BadRequest("Category IDs are required.");
+            }
+
+            var products = _productService.GetProductsByCategoryIds(categoryIds);
+            return Ok(products);
         }
         [HttpPost]
         public ActionResult AddProduct( Product product) {

@@ -1,4 +1,5 @@
-﻿using TrainingBE.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using TrainingBE.Data;
 using TrainingBE.Model;
 
 namespace TrainingBE.Repository
@@ -11,6 +12,15 @@ namespace TrainingBE.Repository
         public Product GetProductByProductName(string productName)
         {
             return _dbSet.FirstOrDefault(p => p.Name == productName);
+        }
+        public IEnumerable<Product> GetAllProductsIncludingCategory()
+        {
+            return _dbSet.Include(p => p.Category).ToList();
+        }
+
+        public List<Product> GetProductsByCategoryId(int categoryId)
+        {
+            return _dbSet.Where(p => p.CategoryID == categoryId).ToList();
         }
     }
 }

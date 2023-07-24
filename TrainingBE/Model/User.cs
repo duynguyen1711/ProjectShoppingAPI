@@ -1,4 +1,6 @@
-﻿using System.Security.Cryptography;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace TrainingBE.Model
@@ -16,6 +18,8 @@ namespace TrainingBE.Model
             User = 0,
             Admin = 1,
         }
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int id { set; get; }
         public string name { set; get; }
         public string userName { set; get; }
@@ -24,6 +28,7 @@ namespace TrainingBE.Model
         public string email { set; get; }
         public string numberPhone { set; get; }
         public Role role { set; get; }
+        public ICollection<Order>? Orders { get; set; }
         public User()
         {
             status = UserStatus.active;

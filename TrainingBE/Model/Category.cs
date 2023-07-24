@@ -1,10 +1,15 @@
-﻿namespace TrainingBE.Model
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
+
+namespace TrainingBE.Model
 {
     public class Category
     {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
         public string Name { get; set; }
-        //public List<ProductInfo> Products { get; set; }
+        
 
         public Category()
         {

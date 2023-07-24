@@ -36,7 +36,7 @@ namespace TrainingBE.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Categories");
+                    b.ToTable("Categories", (string)null);
                 });
 
             modelBuilder.Entity("TrainingBE.Model.Discount", b =>
@@ -53,17 +53,12 @@ namespace TrainingBE.Migrations
                     b.Property<double>("Percentage")
                         .HasColumnType("float");
 
-                    b.Property<int?>("ProductId")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ProductId");
-
-                    b.ToTable("Discounts");
+                    b.ToTable("Discounts", (string)null);
                 });
 
             modelBuilder.Entity("TrainingBE.Model.Order", b =>
@@ -91,7 +86,11 @@ namespace TrainingBE.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Orders");
+                    b.HasIndex("PaymentID");
+
+                    b.HasIndex("UserID");
+
+                    b.ToTable("Orders", (string)null);
                 });
 
             modelBuilder.Entity("TrainingBE.Model.OrderItem", b =>
@@ -120,7 +119,11 @@ namespace TrainingBE.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("OrderItems");
+                    b.HasIndex("OrderId");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("OrderItems", (string)null);
                 });
 
             modelBuilder.Entity("TrainingBE.Model.Payment", b =>
@@ -136,7 +139,7 @@ namespace TrainingBE.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Payments");
+                    b.ToTable("Payments", (string)null);
                 });
 
             modelBuilder.Entity("TrainingBE.Model.Product", b =>
@@ -161,7 +164,7 @@ namespace TrainingBE.Migrations
 
                     b.HasIndex("CategoryID");
 
-                    b.ToTable("Products");
+                    b.ToTable("Products", (string)null);
                 });
 
             modelBuilder.Entity("TrainingBE.Model.Product_Discount", b =>
@@ -180,7 +183,11 @@ namespace TrainingBE.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Products_Discount");
+                    b.HasIndex("DiscountId");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("Products_Discount", (string)null);
                 });
 
             modelBuilder.Entity("TrainingBE.Model.User", b =>
@@ -219,20 +226,51 @@ namespace TrainingBE.Migrations
 
                     b.HasKey("id");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
-            modelBuilder.Entity("TrainingBE.Model.Discount", b =>
+            modelBuilder.Entity("TrainingBE.Model.Order", b =>
                 {
-                    b.HasOne("TrainingBE.Model.Product", null)
-                        .WithMany("Discount")
-                        .HasForeignKey("ProductId");
+                    b.HasOne("TrainingBE.Model.Payment", "Payment")
+                        .WithMany()
+                        .HasForeignKey("PaymentID")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("TrainingBE.Model.User", "User")
+                        .WithMany("Orders")
+                        .HasForeignKey("UserID")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Payment");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("TrainingBE.Model.OrderItem", b =>
+                {
+                    b.HasOne("TrainingBE.Model.Order", "Order")
+                        .WithMany()
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TrainingBE.Model.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Order");
+
+                    b.Navigation("Product");
                 });
 
             modelBuilder.Entity("TrainingBE.Model.Product", b =>
                 {
                     b.HasOne("TrainingBE.Model.Category", "Category")
-                        .WithMany()
+                        .WithMany("Products")
                         .HasForeignKey("CategoryID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -240,9 +278,43 @@ namespace TrainingBE.Migrations
                     b.Navigation("Category");
                 });
 
+            modelBuilder.Entity("TrainingBE.Model.Product_Discount", b =>
+                {
+                    b.HasOne("TrainingBE.Model.Discount", "Discount")
+                        .WithMany("Product_Discounts")
+                        .HasForeignKey("DiscountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TrainingBE.Model.Product", "Product")
+                        .WithMany("Product_Discounts")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Discount");
+
+                    b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("TrainingBE.Model.Category", b =>
+                {
+                    b.Navigation("Products");
+                });
+
+            modelBuilder.Entity("TrainingBE.Model.Discount", b =>
+                {
+                    b.Navigation("Product_Discounts");
+                });
+
             modelBuilder.Entity("TrainingBE.Model.Product", b =>
                 {
-                    b.Navigation("Discount");
+                    b.Navigation("Product_Discounts");
+                });
+
+            modelBuilder.Entity("TrainingBE.Model.User", b =>
+                {
+                    b.Navigation("Orders");
                 });
 #pragma warning restore 612, 618
         }

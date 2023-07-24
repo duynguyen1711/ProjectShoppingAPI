@@ -5,5 +5,7 @@ namespace TrainingBE.Repository
     public interface IProductRepository : IRepository<Product>
     {
         Product GetProductByProductName(string productName);
+        IEnumerable<Product> GetAllProductsIncludingCategory();
+        List<Product> GetProductsByCategoryId(int categoryId);
     }
 }

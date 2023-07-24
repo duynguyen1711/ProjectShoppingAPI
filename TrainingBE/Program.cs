@@ -13,6 +13,8 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<IDiscountService, DiscountService>();
+builder.Services.AddScoped<IProductDiscountService, ProductDiscountService>();
 // Add services to the container.
 
 builder.Services.AddControllers();

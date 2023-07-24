@@ -8,5 +8,9 @@ namespace TrainingBE.Repository
         public CategoryRepository(MyDBContext context) : base(context)
         {
         }
+        public Category GetCategoryByCategoryName(string categoryName)
+        {
+            return _dbSet.FirstOrDefault(c => c.Name == categoryName);
+        }
     }
 }

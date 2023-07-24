@@ -2,8 +2,9 @@
 
 namespace TrainingBE.Repository
 {
-    public interface ICategoryRepository:IRepository<Category>
+    public interface ICategoryRepository : IRepository<Category>
     {
+        Category GetCategoryByCategoryName(string categoryName);
     }
     
 }
