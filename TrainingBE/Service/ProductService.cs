@@ -1,4 +1,5 @@
-﻿using TrainingBE.Model;
+﻿using TrainingBE.DTO;
+using TrainingBE.Model;
 using TrainingBE.Repository;
 
 namespace TrainingBE.Service
@@ -159,7 +160,72 @@ namespace TrainingBE.Service
             return result;
         }
 
+        public List<ProductWithDiscountDTO> GetProductsWithDiscountedPrice(DateTime currentDate)
+        {
+            List<ProductWithDiscountDTO> discountedProducts = new List<ProductWithDiscountDTO>();
 
+            // Lấy danh sách tất cả các sản phẩm từ cơ sở dữ liệu, bao gồm thông tin Product_Discounts
+            List<Product> allProducts = _unitOfWork.ProductRepository.GetAllWithDiscounts().ToList();
+
+            // Lấy danh sách mã giảm giá có hiệu lực cho ngày hiện tại, có thể sử dụng GetValidProductDiscounts
+            List<Discount> validDiscounts = GetValidProductDiscounts(currentDate);
+
+            foreach (var product in allProducts)
+            {
+                double discountedPrice = product.Price;
+                DiscountDTO appliedDiscount = null;
+
+                // Tìm mã giảm giá đã áp dụng cho sản phẩm
+                foreach (var discount in validDiscounts)
+                {
+                    // Kiểm tra xem sản phẩm đã áp dụng mã giảm này hay chưa
+                    var productDiscount = product.Product_Discounts.FirstOrDefault(pd => pd.DiscountId == discount.Id);
+                    if (productDiscount != null)
+                    {
+                        discountedPrice = product.Price - (product.Price * discount.Percentage / 100);
+                        appliedDiscount = new DiscountDTO
+                        {
+                            Percentage = discount.Percentage,
+                            StartDate = discount.StartDate,
+                            EndDate = discount.EndDate
+                        };
+                        break;
+                    }
+                }
+
+                // Tạo DTO cho sản phẩm đã giảm giá (nếu có)
+                ProductWithDiscountDTO discountedProduct = new ProductWithDiscountDTO
+                {
+                    Id = product.Id,
+                    Name = product.Name,
+                    OriginalPrice = product.Price,
+                    DiscountedPrice = discountedPrice,
+                    CategoryId = product.CategoryID,
+                    Discount = appliedDiscount
+                };
+
+                discountedProducts.Add(discountedProduct);
+            }
+            return discountedProducts;
+        }
+        private List<Discount> GetValidProductDiscounts(DateTime currentDate)
+        {
+            List<Discount> validDiscounts = new List<Discount>();
+
+            // Lấy danh sách tất cả các mã giảm giá từ cơ sở dữ liệu, có thể sử dụng DiscountRepository
+            List<Discount> allDiscounts = _unitOfWork.DiscountRepository.GetAll().ToList();
+
+            // Lọc các mã giảm giá có hiệu lực cho ngày hiện tại
+            foreach (var discount in allDiscounts)
+            {
+                if (discount.StartDate.Date <= currentDate && discount.EndDate.Date >= currentDate)
+                {
+                    validDiscounts.Add(discount);
+                }
+            }
+
+            return validDiscounts;
+        }
     }
 
 }

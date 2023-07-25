@@ -22,5 +22,9 @@ namespace TrainingBE.Repository
         {
             return _dbSet.Where(p => p.CategoryID == categoryId).ToList();
         }
+        public IQueryable<Product> GetAllWithDiscounts()
+        {
+            return _dbSet.Include(p => p.Product_Discounts); 
+        }
     }
 }

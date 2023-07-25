@@ -1,4 +1,5 @@
-﻿using TrainingBE.Model;
+﻿using TrainingBE.DTO;
+using TrainingBE.Model;
 
 namespace TrainingBE.Service
 {
@@ -13,6 +14,7 @@ namespace TrainingBE.Service
         bool ValidateAddProduct(Product product, out string errorMessage);
         IEnumerable<Product> GetAllProductsIncludingCategory();
         List<Product> GetProductsByCategoryIds(List<int> categoryIds);
+        List<ProductWithDiscountDTO> GetProductsWithDiscountedPrice(DateTime currentDate);
 
     }
 }

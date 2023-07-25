@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using TrainingBE.Data;
+using TrainingBE.DTO;
 using TrainingBE.Model;
 using TrainingBE.Repository;
 using TrainingBE.Service;
@@ -111,6 +112,15 @@ namespace TrainingBE.Controllers
             {
                 return BadRequest(ex.Message);
             }
+        }
+        [HttpGet("discounted")]
+        public IActionResult GetProductsDiscountedPrice(DateTime currentDate)
+        {
+            // Lấy danh sách sản phẩm đã giảm giá dựa vào ngày hiện tại và mã giảm giá hiện có
+            List<ProductWithDiscountDTO> discountedProducts = _productService.GetProductsWithDiscountedPrice(currentDate);
+
+            // Trả về danh sách sản phẩm đã giảm giá
+            return Ok(discountedProducts);
         }
     }
 }

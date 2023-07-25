@@ -49,7 +49,12 @@ namespace TrainingBE.Controllers
         [HttpGet("{productId}/discounts")]
         public IActionResult GetDiscountsByProductId(int productId)
         {
-            var discounts = _productDiscountService.GetDiscountsByProductId(productId);
+            string error;
+            var discounts = _productDiscountService.GetDiscountsByProductId(productId,out error);
+            if (!string.IsNullOrEmpty(error))
+            {
+                return BadRequest(error);
+            }
             return Ok(discounts);
         }
 
@@ -57,7 +62,12 @@ namespace TrainingBE.Controllers
         [HttpGet("discount/{discountId}/products")]
         public IActionResult GetProductsByDiscountId(int discountId)
         {
-            var products = _productDiscountService.GetProductsByDiscountId(discountId);
+            string error;
+            var products = _productDiscountService.GetProductsByDiscountId(discountId,out error);
+            if (!string.IsNullOrEmpty(error))
+            {
+                return BadRequest(error);
+            }
             return Ok(products);
         }
         [HttpGet]
@@ -65,6 +75,19 @@ namespace TrainingBE.Controllers
         {
             var productDiscounts = _productDiscountService.GetAllProductDiscounts();
             return Ok(productDiscounts);
+        }
+        [HttpPut("products/{productId}/discounts")]
+        public IActionResult UpdateDiscountForProduct(int productId, [FromQuery] int oldDiscountId, [FromQuery] int newDiscountId)
+        {
+            string error;
+            _productDiscountService.UpdateDiscountForProduct(productId, oldDiscountId, newDiscountId, out error);
+
+            if (!string.IsNullOrEmpty(error))
+            {
+                return BadRequest(error);
+            }
+
+            return Ok("Discount for product updated successfully.");
         }
     }
 }

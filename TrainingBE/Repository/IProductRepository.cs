@@ -1,4 +1,5 @@
-﻿using TrainingBE.Model;
+﻿using Microsoft.EntityFrameworkCore;
+using TrainingBE.Model;
 
 namespace TrainingBE.Repository
 {
@@ -7,5 +8,7 @@ namespace TrainingBE.Repository
         Product GetProductByProductName(string productName);
         IEnumerable<Product> GetAllProductsIncludingCategory();
         List<Product> GetProductsByCategoryId(int categoryId);
+        IQueryable<Product> GetAllWithDiscounts();
+        
     }
 }

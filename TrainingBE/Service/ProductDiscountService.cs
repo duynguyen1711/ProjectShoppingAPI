@@ -90,33 +90,38 @@ namespace TrainingBE.Service
 
         }
 
-        public List<DiscountDTO> GetDiscountsByProductId(int productId)
+        public List<DiscountDTO> GetDiscountsByProductId(int productId,out string error)
         {
-            var existingDiscount = _unitOfWork.DiscountRepository.GetById(productId);
+            error = string.Empty;
+            var existingProduct = _unitOfWork.ProductRepository.GetById(productId);
 
-            if (existingDiscount == null)
+            if (existingProduct == null)
             {
-                throw new ArgumentException("Discount not found");
+                error = "Not found product"; 
             }
 
-            var products = _unitOfWork.ProductDiscountRepository.GetProductsByDiscountId(productId);
-            var result = products.Select(pd => new DiscountDTO
-            {
-                  Percentage=pd.Discount.Percentage
-
-            }).ToList();
-
-
+            var discounts = _unitOfWork.ProductDiscountRepository.GetDiscountsByProductId(productId);
+            var discountIDs = discounts.Select(pd => pd.DiscountId).ToList();
+            var result = _unitOfWork.DiscountRepository.GetAll()
+                .Where(p => discountIDs.Contains(p.Id))
+                                    .Select(p => new DiscountDTO
+                                    {
+                                        Percentage = p.Percentage,
+                                        StartDate=p.StartDate,
+                                        EndDate=p.EndDate,
+                                    })
+                                    .ToList();
             return result;
         }
 
-        public List<ProductDTO> GetProductsByDiscountId(int discountId)
+        public List<ProductDTO> GetProductsByDiscountId(int discountId,out string error)
         {
+            error = string.Empty;
             var existingDiscount = _unitOfWork.DiscountRepository.GetById(discountId);
 
             if (existingDiscount == null)
             {
-                throw new ArgumentException("Discount not found");
+                error ="Discount not found";
             }
 
             var productDiscounts = _unitOfWork.ProductDiscountRepository.GetProductsByDiscountId(discountId);
@@ -165,6 +170,54 @@ namespace TrainingBE.Service
 
             return result;
 
+        }
+
+        public bool UpdateDiscountForProduct(int productId, int oldDiscountId, int newDiscountId, out string errorMessage)
+        {
+            errorMessage = string.Empty;
+
+            var product = _unitOfWork.ProductRepository.GetAll() // Eager loading dữ liệu cho Product_Discounts
+                         .FirstOrDefault(p => p.Id == productId);
+            if (product == null)
+            {
+                errorMessage = "Product not found";
+                return false;
+            }
+
+            var oldDiscount = _unitOfWork.DiscountRepository.GetById(oldDiscountId);
+            var newDiscount = _unitOfWork.DiscountRepository.GetById(newDiscountId);
+
+            if (oldDiscount == null)
+            {
+                errorMessage = "Old discount not found";
+                return false;
+            }
+
+            if (newDiscount == null)
+            {
+                errorMessage = "New discount not found";
+                return false;
+            }
+            // Kiểm tra nếu mã giảm mới đã được áp dụng cho sản phẩm
+            bool IsNewDiscountApplied = _unitOfWork.ProductDiscountRepository.Exists(productId, newDiscountId);
+            if (IsNewDiscountApplied)
+            {
+                errorMessage = "Product already has the new discount applied";
+                return false;
+            }
+            var productDiscount = _unitOfWork.ProductDiscountRepository.GetAllProductDiscount().FirstOrDefault(pd => pd.DiscountId == oldDiscountId);
+            if (productDiscount == null)
+            {
+                errorMessage = "Product does not have the old discount applied";
+                return false;
+            }
+
+            // Gán mã giảm mới vào đối tượng product_discount
+            productDiscount.DiscountId = newDiscountId;
+
+            _unitOfWork.Save();
+
+            return true;
         }
     }
 }
