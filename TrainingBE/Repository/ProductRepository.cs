@@ -1,30 +1,65 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using TrainingBE.Data;
+using TrainingBE.DTO;
 using TrainingBE.Model;
 
 namespace TrainingBE.Repository
 {
-    public class ProductRepository: Repository<Product>, IProductRepository
+    public class ProductRepository:  IProductRepository
     {
-        public ProductRepository(MyDBContext context) : base(context)
+        private readonly MyDBContext _context;
+        public ProductRepository(MyDBContext context)
         { 
+            _context = context;
         }
         public Product GetProductByProductName(string productName)
         {
-            return _dbSet.FirstOrDefault(p => p.Name == productName);
+            var result = _context.Products.FromSqlInterpolated($"EXEC GetProductByName {productName}");
+            return result.AsEnumerable().FirstOrDefault();
         }
-        public IEnumerable<Product> GetAllProductsIncludingCategory()
-        {
-            return _dbSet.Include(p => p.Category).ToList();
-        }
-
+ 
         public List<Product> GetProductsByCategoryId(int categoryId)
         {
-            return _dbSet.Where(p => p.CategoryID == categoryId).ToList();
+            var categoryIdParam = new SqlParameter("@CategoryId", categoryId);
+            return _context.Products.FromSqlRaw("EXEC usp_GetProductsByCategoryId @CategoryId", categoryIdParam).ToList();
         }
+
         public IQueryable<Product> GetAllWithDiscounts()
         {
-            return _dbSet.Include(p => p.Product_Discounts); 
+            return _context.Products.Include(p => p.Product_Discounts);
+        }
+
+        public Product GetById(int id)
+        {
+            var result = _context.Products.FromSqlInterpolated($"EXEC GetProductById {id}");
+            return result.AsEnumerable().FirstOrDefault();
+        }
+
+        public IEnumerable<Product> GetAll()
+        {
+            return _context.Products.FromSqlRaw("EXEC GetAllProducts").ToList();
+        }
+
+        public void Add(Product product)
+        {
+            _context.Database.ExecuteSqlInterpolated($"EXEC InsertProduct {product.Name}, {product.Price}, {product.CategoryID}");
+        }
+
+        public void Update(Product product)
+        {
+            _context.Database.ExecuteSqlInterpolated($"EXEC UpdateProduct {product.Id}, {product.Name}, {product.Price}, {product.CategoryID}");
+        }
+
+        public void Delete(Product product)
+        {
+            _context.Database.ExecuteSqlInterpolated($"EXEC usp_DeleteProduct {product.Id}");
+        }
+        public List<Product> SearchProductsWithDiscount(string keyword)
+        {
+            return _context.Products
+        .FromSqlRaw("EXEC usp_SearchProducts @Keyword", new SqlParameter("@Keyword", keyword))
+        .ToList();
         }
     }
 }

@@ -142,19 +142,31 @@ namespace TrainingBE.Service
             errorMessage = string.Empty;
             return true;
         }
-        public IEnumerable<Product> GetAllProductsIncludingCategory()
-        {
-            return _unitOfWork.ProductRepository.GetAllProductsIncludingCategory();
-        }
+        
 
-        public List<Product> GetProductsByCategoryIds(List<int> categoryIds)
+        public List<CategoryProductDTO> GetProductsByCategoryIds(List<int> categoryIds)
         {
-            var result = new List<Product>();
+            var result = new List<CategoryProductDTO>();
 
             foreach (int categoryId in categoryIds)
             {
-                var productsInCategory = _unitOfWork.ProductRepository.GetProductsByCategoryId(categoryId);
-                result.AddRange(productsInCategory);
+                var category = _unitOfWork.CategoryRepository.GetById(categoryId);
+                if (category != null)
+                {
+                    var productsInCategory = _unitOfWork.ProductRepository.GetProductsByCategoryId(categoryId);
+                    var productDTOs = productsInCategory.Select(p => new ProductDTO
+                    {
+                        Name = p.Name,
+                        Price = p.Price,
+                        CategoryID = categoryId,
+                    }).ToList();
+
+                    result.Add(new CategoryProductDTO
+                    {
+                        CategoryName = category.Name,
+                        Products = productDTOs
+                    });
+                }
             }
 
             return result;
@@ -166,6 +178,7 @@ namespace TrainingBE.Service
 
             // Lấy danh sách tất cả các sản phẩm từ cơ sở dữ liệu, bao gồm thông tin Product_Discounts
             List<Product> allProducts = _unitOfWork.ProductRepository.GetAllWithDiscounts().ToList();
+            List <Category> allCategories = _unitOfWork.CategoryRepository.GetAll().ToList();
 
             // Lấy danh sách mã giảm giá có hiệu lực cho ngày hiện tại, có thể sử dụng GetValidProductDiscounts
             List<Discount> validDiscounts = GetValidProductDiscounts(currentDate);
@@ -201,6 +214,7 @@ namespace TrainingBE.Service
                     OriginalPrice = product.Price,
                     DiscountedPrice = discountedPrice,
                     CategoryId = product.CategoryID,
+                    Category = product.Category,
                     Discount = appliedDiscount
                 };
 
@@ -225,6 +239,68 @@ namespace TrainingBE.Service
             }
 
             return validDiscounts;
+        }
+
+        public List<ProductWithDiscountDTO> GetSortedProductsWithDiscount(DateTime currentDate, string sortColumn, string sortOrder)
+        {
+            // Lấy danh sách sản phẩm với mã giảm giá từ ProductService
+            List<ProductWithDiscountDTO> discountedProducts = GetProductsWithDiscountedPrice(currentDate);
+
+            // Sắp xếp danh sách sản phẩm tùy chọn
+            switch (sortColumn)
+            {
+                case "Name":
+                    discountedProducts = sortOrder == "asc"
+                        ? discountedProducts.OrderBy(p => p.Name).ToList()
+                        : discountedProducts.OrderByDescending(p => p.Name).ToList();
+                    break;
+                case "OriginalPrice":
+                    discountedProducts = sortOrder == "asc"
+                        ? discountedProducts.OrderBy(p => p.OriginalPrice).ToList()
+                        : discountedProducts.OrderByDescending(p => p.OriginalPrice).ToList();
+                    break;
+                case "DiscountedPrice":
+                    discountedProducts = sortOrder == "asc"
+                        ? discountedProducts.OrderBy(p => p.DiscountedPrice).ToList()
+                        : discountedProducts.OrderByDescending(p => p.DiscountedPrice).ToList();
+                    break;
+                case "CategoryId":
+                    if (sortOrder == "asc")
+                    {
+                        discountedProducts = discountedProducts
+                            .OrderBy(p => p.CategoryId)
+                            .ThenBy(p => p.Name)
+                            .ToList();
+                    }
+                    else
+                    {
+                        discountedProducts = discountedProducts
+                            .OrderByDescending(p => p.CategoryId)
+                            .ThenByDescending(p => p.Name)
+                            .ToList();
+                    }
+                    break;
+                // Thêm các trường khác mà bạn muốn sắp xếp theo
+                default:
+                    break;
+            }
+
+            return discountedProducts;
+        }
+        public List<ProductWithDiscountDTO> GetProductsWithDiscountByKeyword(DateTime currentDate, string keyword)
+        {
+            List<ProductWithDiscountDTO> discountedProducts = GetProductsWithDiscountedPrice(currentDate.Date);
+
+            // Gọi phương thức mới để lấy danh sách sản phẩm đã tìm kiếm theo từ khóa
+            List<Product> productsByKeyword = _unitOfWork.ProductRepository.SearchProductsWithDiscount(keyword);
+
+            // Kết hợp danh sách sản phẩm đã giảm giá và danh sách sản phẩm tìm thấy theo từ khóa
+            // để trả về danh sách kết quả
+            var result = discountedProducts
+                .Where(p => productsByKeyword.Any(pbk => pbk.Id == p.Id))
+                .ToList();
+
+            return result;
         }
     }
 

@@ -12,9 +12,12 @@ namespace TrainingBE.Service
         IEnumerable<Product> GetAllProducts();
         bool ValidateUpdateProduct(Product existingProduct, Product updatedProduct, out string errorMessage);
         bool ValidateAddProduct(Product product, out string errorMessage);
-        IEnumerable<Product> GetAllProductsIncludingCategory();
-        List<Product> GetProductsByCategoryIds(List<int> categoryIds);
+        List<CategoryProductDTO> GetProductsByCategoryIds(List<int> categoryIds);
         List<ProductWithDiscountDTO> GetProductsWithDiscountedPrice(DateTime currentDate);
+        List<ProductWithDiscountDTO> GetSortedProductsWithDiscount(DateTime currentDate, string sortColumn, string sortOrder);
+        List<ProductWithDiscountDTO> GetProductsWithDiscountByKeyword(DateTime currentDate, string keyword);
+        
+
 
     }
 }

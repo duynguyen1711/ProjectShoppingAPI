@@ -10,5 +10,6 @@ namespace TrainingBE.DTO
         public double DiscountedPrice { get; set; }
         public int CategoryId { get; set; }
         public DiscountDTO? Discount { get; set; } 
+        public Category? Category { get; set; }
     }
 }

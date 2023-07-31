@@ -1,4 +1,5 @@
-﻿using TrainingBE.DTO;
+﻿using Microsoft.EntityFrameworkCore;
+using TrainingBE.DTO;
 using TrainingBE.Model;
 using TrainingBE.Repository;
 
@@ -74,7 +75,7 @@ namespace TrainingBE.Service
                 return false;
             }
 
-            // Xóa mã giảm khỏi sản phẩm
+            
             var productDiscount = _unitOfWork.ProductDiscountRepository.GetAll()
             .FirstOrDefault(pd => pd.ProductId == productId && pd.DiscountId == discountId);
 
@@ -146,27 +147,40 @@ namespace TrainingBE.Service
 
         public List<ProductDiscountDTO> GetAllProductDiscounts()
         {
-            var productDiscounts = _unitOfWork.ProductDiscountRepository.GetAllProductDiscount();
-            var result = productDiscounts.Select(pd => new ProductDiscountDTO
+            var productDiscounts = _unitOfWork.ProductDiscountRepository.GetAll();
+
+            var result = new List<ProductDiscountDTO>();
+
+            foreach (var pd in productDiscounts)
             {
-                Id = pd.Id,
-                ProductId = pd.ProductId,
-                Product = new ProductDTO
-                {
-                    Name = pd.Product.Name,
-                    Price = pd.Product.Price,
-                    CategoryID =pd.Product.CategoryID
-                },
-                DiscountId = pd.DiscountId,
+                var product = _unitOfWork.ProductRepository.GetById(pd.ProductId);
+                var discount = _unitOfWork.DiscountRepository.GetById(pd.DiscountId);
 
-                Discount = new DiscountDTO
+                if (product != null && discount != null)
                 {
-                    Percentage = pd.Discount.Percentage,
-                    EndDate = pd.Discount.EndDate,
-                    StartDate = pd.Discount.StartDate,
+                    var productDiscountDTO = new ProductDiscountDTO
+                    {
+                        Id = pd.Id,
+                        ProductId = pd.ProductId,
+                        Product = new ProductDTO
+                        {
+                            Name = product.Name,
+                            Price = product.Price,
+                            CategoryID = product.CategoryID
+                        },
+                        DiscountId = pd.DiscountId,
+
+                        Discount = new DiscountDTO
+                        {
+                            Percentage = discount.Percentage,
+                            EndDate = discount.EndDate,
+                            StartDate = discount.StartDate,
+                        }
+                    };
+
+                    result.Add(productDiscountDTO);
                 }
-
-            }).ToList();
+            }
 
             return result;
 
