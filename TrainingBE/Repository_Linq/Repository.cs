@@ -2,13 +2,13 @@
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using TrainingBE.Data;
 
-namespace TrainingBE.Repository
+namespace TrainingBE.Repository_Linq
 {
     public class Repository<TEntity> : IRepository<TEntity> where TEntity : class
     {
-        private MyDBContext _context =null;
+        private MyDBContext _context = null;
         protected readonly DbSet<TEntity> _dbSet;
-       
+
         public Repository()
         {
             _context = new MyDBContext(new DbContextOptions<MyDBContext>());

@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TrainingBE.Data;
 using TrainingBE.Model;
+using TrainingBE.Repository_Linq;
 
 namespace TrainingBE.Repository
 {

@@ -16,8 +16,8 @@ namespace TrainingBE.Service
         List<ProductWithDiscountDTO> GetProductsWithDiscountedPrice(DateTime currentDate);
         List<ProductWithDiscountDTO> GetSortedProductsWithDiscount(DateTime currentDate, string sortColumn, string sortOrder);
         List<ProductWithDiscountDTO> GetProductsWithDiscountByKeyword(DateTime currentDate, string keyword);
+        Dictionary<string, List<ProductWithDiscountDTO>> GetProductsByPriceRange(DateTime currentDate, List<string> priceRanges);
+        ProductWithDiscountDTO GetProductWithDiscountPriceById(DateTime currentDate, int productId);
         
-
-
     }
 }

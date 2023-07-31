@@ -1,6 +1,6 @@
-﻿namespace TrainingBE.Repository
+﻿namespace TrainingBE.Repository_Linq
 {
-    public interface IRepository <TEntity> where TEntity : class
+    public interface IRepository<TEntity> where TEntity : class
     {
         TEntity GetById(int id);
         IEnumerable<TEntity> GetAll();

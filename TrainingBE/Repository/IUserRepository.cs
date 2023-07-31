@@ -1,4 +1,5 @@
 ﻿using TrainingBE.Model;
+using TrainingBE.Repository_Linq;
 
 namespace TrainingBE.Repository
 {

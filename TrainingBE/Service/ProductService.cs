@@ -302,6 +302,40 @@ namespace TrainingBE.Service
 
             return result;
         }
+        public Dictionary<string, List<ProductWithDiscountDTO>> GetProductsByPriceRange(DateTime currentDate, List<string> priceRanges)
+        {
+            List<ProductWithDiscountDTO> allProducts = GetProductsWithDiscountedPrice(currentDate.Date);
+
+            Dictionary<string, List<ProductWithDiscountDTO>> productsInPriceRanges = new Dictionary<string, List<ProductWithDiscountDTO>>();
+
+            foreach (var priceRange in priceRanges)
+            {
+                var range = priceRange.Split('-');
+                if (range.Length == 2 && double.TryParse(range[0], out double minPrice) && double.TryParse(range[1], out double maxPrice))
+                {
+                    string rangeKey = $"RangePrice: {minPrice}-{maxPrice}";
+                    productsInPriceRanges[rangeKey] = new List<ProductWithDiscountDTO>();
+
+                    foreach (var product in allProducts)
+                    {
+                        if (product.DiscountedPrice >= minPrice && product.DiscountedPrice <= maxPrice)
+                        {
+                            productsInPriceRanges[rangeKey].Add(product);
+                        }
+                    }
+                }
+            }
+
+            return productsInPriceRanges;
+        }
+        public ProductWithDiscountDTO GetProductWithDiscountPriceById(DateTime currentDate,int productId)
+        {
+            List<ProductWithDiscountDTO> allProducts = GetProductsWithDiscountedPrice(currentDate.Date);
+            ProductWithDiscountDTO productWithDiscout = allProducts.FirstOrDefault(p => p.Id == productId);
+            return productWithDiscout;
+        }
+       
+
     }
 
 }
