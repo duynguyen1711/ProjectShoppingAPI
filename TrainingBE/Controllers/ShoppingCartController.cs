@@ -41,8 +41,8 @@ namespace TrainingBE.Controllers
         }
        
 
-        [HttpGet("view")]
-        public IActionResult ViewCart(double shippingFee)
+        [HttpGet("checkout")]
+        public IActionResult Checkout(double shippingFee)
         {
             var cartItems = _shoppingCartService.GetCartItems();
             double totalPrice = _shoppingCartService.GetTotalPrice();
@@ -57,6 +57,16 @@ namespace TrainingBE.Controllers
                 totalPrice,
                 recalculatedShippingFee,
                 totalPriceWithShipping
+            });
+        }
+        [HttpGet("view")]
+        public IActionResult ViewCart()
+        {
+            var cartItems = _shoppingCartService.GetCartItems();
+            return Ok(new
+            {
+                cartItems,
+               
             });
         }
 
