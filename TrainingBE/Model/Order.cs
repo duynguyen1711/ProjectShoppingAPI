@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using TrainingBE.Common;
 
 namespace TrainingBE.Model
 {
@@ -16,12 +17,6 @@ namespace TrainingBE.Model
         public User? User { get; set; }
         public Payment? Payment { get; set; }
         
-        public enum OrderStatus
-        {
-            PENDING = 0,
-            PROCESSED = 1,
-            SHIPPED = 2,
-            CANCELED = 3,
-        }
+        
     }
 }

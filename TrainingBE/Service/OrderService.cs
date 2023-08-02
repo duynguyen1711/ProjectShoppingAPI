@@ -1,4 +1,6 @@
-﻿using TrainingBE.Model;
+﻿using TrainingBE.Common;
+using TrainingBE.DTO;
+using TrainingBE.Model;
 using TrainingBE.Repository;
 using TrainingBE.Repository_Linq;
 
@@ -28,7 +30,7 @@ namespace TrainingBE.Service
                     UserID = userId,
                     PaymentID = paymentId,
                     OrderDate = DateTime.Now,
-                    orderStatus = Order.OrderStatus.PENDING,
+                    orderStatus = OrderStatus.PENDING,
                     Total = totalPriceWithShipping
                 };
 
@@ -54,5 +56,48 @@ namespace TrainingBE.Service
 
                 return order;     
         }
+
+        public List<OrderDTO> GetAllOrders()
+        {
+            var orders = _unitOfWork.OrderRepository.GetAll();
+            var orderDTOs = orders.Select(order => new OrderDTO
+            {
+                Id = order.Id,
+                UserID = order.UserID,
+                PaymentID = order.PaymentID,
+                OrderDate = order.OrderDate,
+                orderStatus = order.orderStatus,
+                Total = order.Total
+            }).ToList();
+
+            return orderDTOs;
+        }
+        public List<OrderDTO> GetOrdersByUserId(int userId)
+        {
+            var orders = _unitOfWork.OrderRepository
+                .GetAll()
+                .Where(order => order.UserID == userId)
+                .ToList();
+
+            var orderDTOs = orders.Select(order => new OrderDTO
+            {
+                Id = order.Id,
+                UserID = order.UserID,
+                PaymentID = order.PaymentID,
+                OrderDate = order.OrderDate,
+                orderStatus = order.orderStatus,
+                Total = order.Total
+            }).ToList();
+
+            return orderDTOs;
+        }
+        public void UpdateOrderStatus(int orderId, OrderStatus newStatus)
+        {
+            var order = _unitOfWork.OrderRepository.GetById(orderId);
+            order.orderStatus = newStatus;
+            _unitOfWork.OrderRepository.Update(order);
+            _unitOfWork.Save();
+        }
     }
+
 }
