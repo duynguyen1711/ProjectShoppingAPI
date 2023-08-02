@@ -17,5 +17,15 @@
             DiscountedPrice = discountedPrice;
             AppliedDiscount = appliedDiscount;
         }
+        public ShoppingCartItemDTO(int productId, int quantity)
+        {
+            ProductId = productId;
+           
+            Quantity = quantity;
+            
+        }
+        public ShoppingCartItemDTO()
+        {
+        }
     }
 }

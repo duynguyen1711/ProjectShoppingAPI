@@ -1,4 +1,5 @@
 ﻿using TrainingBE.Model;
+using TrainingBE.Repository_Linq;
 
 namespace TrainingBE.Repository
 {
@@ -9,6 +10,10 @@ namespace TrainingBE.Repository
         ICategoryRepository CategoryRepository { get; }
         IDiscountRepository DiscountRepository { get; }
         IProductDiscountRepository ProductDiscountRepository { get; }
+        IOrderRepository_Linq OrderRepository { get; }
+        IOrderItemRepository_Linq OrderItemRepository { get; }
+        IPaymentRepository_Linq PaymentRepository { get; }
+
         void Save();
     }
 }

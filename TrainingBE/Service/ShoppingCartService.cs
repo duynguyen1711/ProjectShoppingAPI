@@ -95,6 +95,10 @@ namespace TrainingBE.Service
             }
             return shippingFee;
         }
+        public void ClearShoppingCart()
+        {
+            _cache.Remove(ShoppingCartCacheKey);
+        }
 
         private void InitializeShoppingCart()
         {

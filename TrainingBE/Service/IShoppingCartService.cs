@@ -10,5 +10,6 @@ namespace TrainingBE.Service
         double GetTotalPrice();
         double GetTotalPriceWithShippingDiscount(double totalPrice, double shippingFee);
         double CaculateShippingFee(double totalPrice, double shippingFee);
+        void ClearShoppingCart();
     }
 }
