@@ -1,7 +1,9 @@
-﻿namespace TrainingBE.Service
+﻿using TrainingBE.Model;
+
+namespace TrainingBE.Service
 {
     public interface IOrderItemService
     {
-        void AddOrderItem(int orderId, int productId, string productName, double price, int quantity);
+        void AddOrderItem(OrderItem orderItem);
     }
 }

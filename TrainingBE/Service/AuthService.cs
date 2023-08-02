@@ -12,6 +12,12 @@ namespace TrainingBE.Service
         {
             _unitOfWork = unitOfWork;
         }
+
+        public User getUserByID(int id)
+        {
+            return _unitOfWork.UserRepository.GetById(id);
+        }
+
         public bool Login(string username, string password, out string errorMessage)
         {
             errorMessage = "";

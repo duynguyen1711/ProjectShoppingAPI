@@ -13,19 +13,9 @@ namespace TrainingBE.Service
             _unitOfWork = unitOfWork;
         }
 
-        public void AddOrderItem(int orderId, int productId, string productName, double price, int quantity)
+        public void AddOrderItem(OrderItem orderItem)
         {
-            var orderItem = new OrderItem
-            {
-                OrderId = orderId,
-                ProductId = productId,
-                ProductName = productName,
-                PriceAtTime = price,
-                Quantity = quantity
-            };
-
             _unitOfWork.OrderItemRepository.Add(orderItem);
-            _unitOfWork.Save();
         }
     }
 }
