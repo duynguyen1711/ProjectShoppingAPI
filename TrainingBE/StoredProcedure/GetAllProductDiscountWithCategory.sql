@@ -19,6 +19,7 @@
 "		p.Name AS ProductName, "
 "        p.Price AS ProductPrice,  "
 "        p.CategoryID AS ProductCategoryId, "
+"		c.Name As CategoryName, "
 "        pd.DiscountId, "
 "        d.Percentage AS DiscountPercentage, "
 "        d.StartDate AS DiscountStartDate, "
@@ -27,4 +28,5 @@
 "    FROM Products_Discount pd "
 "    LEFT JOIN Products p ON pd.ProductId = p.Id "
 "    LEFT JOIN Discounts d ON pd.DiscountId = d.Id "
+"	LEFT JOIN Categories c ON p.CategoryID =c.Id "
 "END "
