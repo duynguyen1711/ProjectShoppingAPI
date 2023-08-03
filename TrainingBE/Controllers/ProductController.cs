@@ -59,7 +59,7 @@ namespace TrainingBE.Controllers
             }
             else
             {
-                return BadRequest("Selected date has not been set.");return BadRequest("Selected date has not been set.");
+                return BadRequest("Selected date has not been set.");
             }  
         }
         [HttpGet("productsByCategoriesID")]
