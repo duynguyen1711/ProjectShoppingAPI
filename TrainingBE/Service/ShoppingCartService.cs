@@ -5,7 +5,7 @@ namespace TrainingBE.Service
     public class ShoppingCartService: IShoppingCartService
     {
         private readonly IMemoryCache _cache;
-        private const string ShoppingCartCacheKey = "ShoppingCart";
+        public const string ShoppingCartCacheKey = "ShoppingCart";
         private List<ShoppingCartItemDTO> _shoppingCart = new List<ShoppingCartItemDTO>();
         public ShoppingCartService(IMemoryCache cache)
         {
@@ -100,8 +100,12 @@ namespace TrainingBE.Service
             _cache.Remove(ShoppingCartCacheKey);
         }
 
-        private void InitializeShoppingCart()
+        public void InitializeShoppingCart()
         {
+            if (_cache == null)
+            {
+                throw new ArgumentNullException(nameof(_cache), "Memory cache is not initialized.");
+            }
             if (!_cache.TryGetValue(ShoppingCartCacheKey, out List<ShoppingCartItemDTO> shoppingCart))
             {
                 shoppingCart = new List<ShoppingCartItemDTO>();

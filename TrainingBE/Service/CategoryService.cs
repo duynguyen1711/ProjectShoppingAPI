@@ -9,7 +9,7 @@ namespace TrainingBE.Service
 
         public CategoryService(IUnitOfWork unitOfWork)
         {
-            _unitOfWork = unitOfWork;
+            _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
         }
         public void AddCategory(Category category)
         {
@@ -49,7 +49,7 @@ namespace TrainingBE.Service
 
         public bool UpdateCategory(int id, Category updatedCategory, out string errorMessage)
         {
-            errorMessage = "";
+            errorMessage = string.Empty;
             if (id <= 0)
             {
                 errorMessage="Invalid ID. ID must be a non-negative number.";

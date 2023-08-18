@@ -57,7 +57,7 @@ namespace TrainingBE.Controllers
             string errorMessage;
             if (_discountService.UpdateDiscount(id, discount, out errorMessage))
             {
-                return Ok("Category updated successfully.");
+                return Ok("Discount updated successfully.");
             }
             else
             {
