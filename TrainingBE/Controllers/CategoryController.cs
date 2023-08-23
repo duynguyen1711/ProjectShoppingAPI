@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using TrainingBE.Model;
 using TrainingBE.Service;
@@ -36,6 +37,7 @@ namespace TrainingBE.Controllers
             }
             return Ok(model);
         }
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
        
         public ActionResult DeleteCategory(int id)
@@ -51,6 +53,7 @@ namespace TrainingBE.Controllers
 
             return Ok("Category deleted successfully.");
         }
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public ActionResult AddCategory(Category category)
         {
@@ -69,6 +72,7 @@ namespace TrainingBE.Controllers
                 return BadRequest(ex.Message);
             }
         }
+        [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
         public IActionResult UpdateCategory(int id, Category updatedCategory)
         {

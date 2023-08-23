@@ -13,6 +13,7 @@ namespace TrainingBE.Repository
         IOrderRepository_Linq OrderRepository { get; }
         IOrderItemRepository_Linq OrderItemRepository { get; }
         IPaymentRepository_Linq PaymentRepository { get; }
+        IReviewRepository_Linq ReviewRepository { get; }
 
         void Save();
     }

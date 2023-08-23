@@ -53,12 +53,12 @@ namespace TrainingBE.Repository
 
         public void Delete(Product product)
         {
-            _context.Database.ExecuteSqlInterpolated($"EXEC usp_DeleteProduct {product.Id}");
+            _context.Database.ExecuteSqlInterpolated($"EXEC DeleteProduct {product.Id}");
         }
         public List<Product> SearchProductsWithDiscount(string keyword)
         {
             return _context.Products
-        .FromSqlRaw("EXEC usp_SearchProducts @Keyword", new SqlParameter("@Keyword", keyword))
+        .FromSqlRaw("EXEC GetProductByKeyWord @Keyword", new SqlParameter("@Keyword", keyword))
         .ToList();
         }
     }

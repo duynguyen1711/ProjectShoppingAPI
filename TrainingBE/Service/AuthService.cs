@@ -1,16 +1,22 @@
-﻿using System.Text.RegularExpressions;
+﻿using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+using System.Text.RegularExpressions;
 using TrainingBE.Model;
 using TrainingBE.Repository;
 using BCryptNet = BCrypt.Net.BCrypt;
 namespace TrainingBE.Service
-{
+{   
     public class AuthService : IAuthService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IConfiguration _config;
 
-        public AuthService(IUnitOfWork unitOfWork)
+        public AuthService(IUnitOfWork unitOfWork, IConfiguration config)
         {
             _unitOfWork = unitOfWork;
+            _config = config;
         }
 
         public User getUserByID(int id)
@@ -107,6 +113,29 @@ namespace TrainingBE.Service
             
             errorMessage = string.Empty;
             return true;
+        }
+        public string GenerateJwtToken(User user)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.ASCII.GetBytes(_config["JwtSettings:Secret"]);
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(new[]
+                {
+                new Claim(ClaimTypes.Name, user.userName),
+                new Claim(ClaimTypes.NameIdentifier, user.id.ToString()),
+                new Claim(ClaimTypes.Role, string.Join(",", user.role))
+            }),
+                Expires = DateTime.UtcNow.AddDays(1),
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+            };
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            return tokenHandler.WriteToken(token);
+        }
+
+        public User GetUserByUsername(string userName)
+        {
+            return _unitOfWork.UserRepository.GetUserByUsername(userName);
         }
     }
 }

@@ -29,6 +29,7 @@ namespace TrainingBE.Model
         public string numberPhone { set; get; }
         public Role role { set; get; }
         public ICollection<Order>? Orders { get; set; }
+        public ICollection<Review>? Reviews { get; set; }
         public User()
         {
             status = UserStatus.active;

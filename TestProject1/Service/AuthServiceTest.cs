@@ -1,4 +1,5 @@
 ﻿using Moq;
+using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,7 +22,7 @@ namespace TestProject1.Service
         public void Setup()
         {
             _mockUnitOfWork = new Mock<IUnitOfWork>();
-            _authService = new AuthService(_mockUnitOfWork.Object);
+            _authService = new AuthService(_mockUnitOfWork.Object,null);
         }
 
         [Test]

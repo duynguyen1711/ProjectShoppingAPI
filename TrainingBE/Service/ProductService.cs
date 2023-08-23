@@ -1,4 +1,5 @@
-﻿using TrainingBE.DTO;
+﻿using PagedList;
+using TrainingBE.DTO;
 using TrainingBE.Model;
 using TrainingBE.Repository;
 
@@ -334,7 +335,48 @@ namespace TrainingBE.Service
             ProductWithDiscountDTO productWithDiscout = allProducts.FirstOrDefault(p => p.Id == productId);
             return productWithDiscout;
         }
-       
+
+        public IPagedList<ProductWithDiscountDTO> GetPagedProductsWithDiscountedPrice(DateTime selectedDate, int pageNumber, int pageSize)
+        {
+            List<ProductWithDiscountDTO> discountedProducts = GetProductsWithDiscountedPrice(selectedDate.Date);
+            return discountedProducts.ToPagedList(pageNumber, pageSize);
+        }
+        public List<ProductWithDiscountDTO> SearchProductByName(DateTime currentDate,string keyword)
+        {
+            List<ProductWithDiscountDTO> allProducts = GetProductsWithDiscountedPrice(currentDate.Date);
+            List<ProductWithDiscountDTO> productsMatchingKeyword = allProducts
+                .Where(product => product.Name.Contains(keyword, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+
+            return productsMatchingKeyword;
+        }
+        public List<ProductStatisticDTO> GetBestSellingProducts()
+        {
+            var orderItems = _unitOfWork.OrderItemRepository.GetAll();
+            var productSales = orderItems
+                .GroupBy(oi => oi.ProductId)
+                .Select(group => new ProductStatisticDTO
+                {
+                    ProductId = group.Key,
+                    TotalQuantitySold = group.Sum(oi => oi.Quantity)
+                })
+                .OrderByDescending(x => x.TotalQuantitySold)
+                .Take(10) // Lấy 10 sản phẩm bán chạy nhất
+                .ToList();
+
+            foreach (var productStat in productSales)
+            {
+                var product = _unitOfWork.ProductRepository.GetById(productStat.ProductId);
+                if (product != null)
+                {
+                    productStat.ProductName = product.Name;
+                }
+            }
+
+            return productSales;
+        }
+
+
 
     }
 

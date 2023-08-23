@@ -8,6 +8,7 @@ namespace TrainingBE.Service
         bool Login(string username, string password,out string errorMessage);
         void Register(User user);
         bool ValidateRegister(User registerRequest, out string errorMessage);
-        
+        string GenerateJwtToken(User user);
+        User GetUserByUsername(string userName);
     }
 }

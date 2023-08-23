@@ -1,4 +1,5 @@
 ﻿using Azure.Core;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
@@ -88,7 +89,7 @@ namespace TrainingBE.Controllers
                 return BadRequest("Selected date has not been set.");
             }
         }
-
+        [Authorize(Policy = "AdminOnly")]
         [HttpPost]
         public ActionResult AddProduct( Product product) {
             string errorMessage;
@@ -106,6 +107,7 @@ namespace TrainingBE.Controllers
                 return BadRequest(ex.Message);
             }
         }
+        [Authorize(Policy = "AdminOnly")]
         [HttpPut("{id}")]
         public IActionResult UpdateProduct(int id, Product product)
         {
@@ -117,6 +119,7 @@ namespace TrainingBE.Controllers
 
             return Ok("Product updated successfully.");
         }
+        [Authorize(Policy = "AdminOnly")]
         [HttpDelete("{id}")]
         public IActionResult DeleteProduct(int id)
         {
@@ -292,6 +295,34 @@ namespace TrainingBE.Controllers
                 return BadRequest("Selected date has not been set.");
             }
         }
-        
+
+        [HttpGet("paged")]
+        public IActionResult GetPagedProducts(int pageNumber=1, int? pageSize = null)
+        {
+            if (_cache.TryGetValue<DateTime>("SelectedDate", out DateTime selectedDate))
+            {
+                int actualPageSize = pageSize ?? 3; // Sử dụng pageSize nếu được cung cấp, nếu không, mặc định là 3
+
+                var pagedDiscountedProducts = _productService.GetPagedProductsWithDiscountedPrice(selectedDate, pageNumber, actualPageSize);
+                return Ok(pagedDiscountedProducts);
+            }
+            else
+            {
+                return BadRequest("Selected date has not been set.");
+            }
+        }
+        [HttpGet("search")]
+        public IActionResult SearchProducts(string productName)
+        {
+            if (_cache.TryGetValue<DateTime>("SelectedDate", out DateTime selectedDate))
+            {
+                var searchedProducts = _productService.SearchProductByName(selectedDate,productName);
+                return Ok(searchedProducts);
+            }
+            else
+            {
+                return BadRequest("Selected date has not been set.");
+            }
+        }
     }
 }

@@ -21,12 +21,18 @@ namespace TrainingBE.Controllers
         {
             string errorMessage;
             bool isAuthenticated = _authService.Login(request.userName, request.password,out errorMessage);
-            if (isAuthenticated)
+            if (!isAuthenticated)
             {
-                return Ok("Login successful");
+                return Unauthorized(new { Error = errorMessage });
             }
 
-            return Unauthorized(errorMessage);
+            var user = _authService.GetUserByUsername(request.userName); // Chỉnh sửa tên phương thức để lấy thông tin người dùng dựa trên tên đăng nhập
+            var token = _authService.GenerateJwtToken(user);
+
+            return Ok(new { 
+                Token = token,
+                Message ="Login successfully"
+            });
         }
 
         [HttpPost("register")]
@@ -52,11 +58,12 @@ namespace TrainingBE.Controllers
             try
             {
                 _authService.Register(user);
-                return Ok("Registration successful");
+                var token = _authService.GenerateJwtToken(user);
+                return Ok(new { Message = "Registration successful", Token = token });
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest(new { Error = ex.Message });
             }
         }
     }

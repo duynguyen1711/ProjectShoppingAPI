@@ -13,6 +13,7 @@ namespace TrainingBE.Model
         public int CategoryID { get; set; }
         public Category? Category { get; set; }
         public List<Product_Discount>? Product_Discounts { get; set; }
-        
+        public ICollection<Review>? Reviews { get; set; }
+
     }
 }

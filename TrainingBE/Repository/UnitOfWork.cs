@@ -15,6 +15,7 @@ namespace TrainingBE.Repository
         private IOrderRepository_Linq _orderRepository;
         private IOrderItemRepository_Linq _orderItemRepository;
         private IPaymentRepository_Linq _paymentRepository;
+        private IReviewRepository_Linq _reviewRepository;
 
         public UnitOfWork(MyDBContext context)
         {
@@ -110,6 +111,19 @@ namespace TrainingBE.Repository
                 return _paymentRepository;
             }
         }
+
+        public IReviewRepository_Linq ReviewRepository
+        {
+            get
+            {
+                if (_reviewRepository == null)
+                {
+                    _reviewRepository = new ReviewRepository_Linq(_context);
+                }
+                return _reviewRepository;
+            }
+        }
+
         public void Save()
         {
             _context.SaveChanges();

@@ -1,4 +1,5 @@
-﻿using TrainingBE.DTO;
+﻿using PagedList;
+using TrainingBE.DTO;
 using TrainingBE.Model;
 
 namespace TrainingBE.Service
@@ -18,6 +19,8 @@ namespace TrainingBE.Service
         List<ProductWithDiscountDTO> GetProductsWithDiscountByKeyword(DateTime currentDate, string keyword);
         Dictionary<string, List<ProductWithDiscountDTO>> GetProductsByPriceRange(DateTime currentDate, List<string> priceRanges);
         ProductWithDiscountDTO GetProductWithDiscountPriceById(DateTime currentDate, int productId);
-        
+        IPagedList<ProductWithDiscountDTO> GetPagedProductsWithDiscountedPrice(DateTime selectedDate, int pageNumber, int pageSize);
+        List<ProductWithDiscountDTO> SearchProductByName(DateTime currentDate, string keyword);  
+        List<ProductStatisticDTO> GetBestSellingProducts();
     }
 }
