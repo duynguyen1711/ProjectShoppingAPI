@@ -7,6 +7,6 @@ namespace TrainingBE.Service
     {
         void SendEmail(EmailDTO request);
         void SendEmailsToUsers(List<User> users);
-
+        void SendResetPasswordEmail(string email, string resetToken);
     }
 }

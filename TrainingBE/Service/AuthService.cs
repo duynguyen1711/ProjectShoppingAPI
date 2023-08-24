@@ -12,11 +12,13 @@ namespace TrainingBE.Service
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IConfiguration _config;
+        private IEmailService _emailService;
 
-        public AuthService(IUnitOfWork unitOfWork, IConfiguration config)
+        public AuthService(IUnitOfWork unitOfWork, IConfiguration config, IEmailService emailService)
         {
             _unitOfWork = unitOfWork;
             _config = config;
+            _emailService = emailService;
         }
 
         public User getUserByID(int id)
@@ -136,6 +138,46 @@ namespace TrainingBE.Service
         public User GetUserByUsername(string userName)
         {
             return _unitOfWork.UserRepository.GetUserByUsername(userName);
+        }
+        public bool RequestPasswordReset(string email)
+        {
+            User user = _unitOfWork.UserRepository.GetUserByEmail(email);
+            if (user == null)
+            {
+                return false;
+            }
+
+            
+            string resetToken = GenerateResetToken(user.id);
+
+           
+            user.ResetToken = resetToken;
+            user.ResetTokenExpiration = DateTime.UtcNow.AddMinutes(10); 
+            _unitOfWork.UserRepository.Update(user);
+            _unitOfWork.Save();
+            
+            _emailService.SendResetPasswordEmail(user.email, resetToken);
+
+            return true;
+        }
+        public bool ResetPassword(string email, string token, string newPassword)
+        {
+            User user = _unitOfWork.UserRepository.GetUserByEmail(email);
+            if (user == null || user.ResetToken != token || user.ResetTokenExpiration <= DateTime.UtcNow)
+            {
+                return false;
+            }
+
+           
+            user.password = BCryptNet.HashPassword(newPassword); 
+            _unitOfWork.UserRepository.Update(user);
+            _unitOfWork.Save();
+            return true;
+        }
+
+        private string GenerateResetToken(int id)
+        {
+            return Guid.NewGuid().ToString();
         }
     }
 }

@@ -10,6 +10,12 @@ namespace TrainingBE.Repository
         public UserRepository(MyDBContext context) : base(context)
         {
         }
+
+        public User GetUserByEmail(string email)
+        {
+            return _dbSet.FirstOrDefault(u => u.email == email);
+        }
+
         public User GetUserByUsername(string username)
         {
             return _dbSet.FirstOrDefault(u => u.userName == username);

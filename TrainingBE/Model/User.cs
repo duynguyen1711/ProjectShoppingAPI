@@ -30,6 +30,8 @@ namespace TrainingBE.Model
         public Role role { set; get; }
         public ICollection<Order>? Orders { get; set; }
         public ICollection<Review>? Reviews { get; set; }
+        public string? ResetToken { get; set; }
+        public DateTime? ResetTokenExpiration { get; set; }
         public User()
         {
             status = UserStatus.active;

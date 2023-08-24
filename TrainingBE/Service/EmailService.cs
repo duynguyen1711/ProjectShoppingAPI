@@ -48,6 +48,17 @@ namespace TrainingBE.Service
             }
         }
 
+        public void SendResetPasswordEmail(string email, string resetToken)
+        {
+            var emailRequest = new EmailDTO
+            {
+                To = email,
+                Subject = "RESET PASSWORD",
+                Body = resetToken   
+            };
+            SendEmail(emailRequest);
+        }
+
         private string GetEmailBody(User user)
         {
             return $"Hello {user.name},<br/><br/>Chào mưng quý khách đến chương trình khuyến mãi của chúng tôi";

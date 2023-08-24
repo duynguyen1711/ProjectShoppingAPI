@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using TrainingBE.DTO;
 using TrainingBE.Model;
 using TrainingBE.Service;
 
@@ -64,6 +65,33 @@ namespace TrainingBE.Controllers
             catch (Exception ex)
             {
                 return BadRequest(new { Error = ex.Message });
+            }
+        }
+        [HttpPost("request-password-reset")]
+        public IActionResult RequestPasswordReset([FromBody] ForgotPasswordRequest request)
+        {
+            bool success = _authService.RequestPasswordReset(request.Email);
+            if (success)
+            {
+                return Ok("An email has been sent to your address with instructions to reset your password.");
+            }
+            else
+            {
+                return NotFound("Email not found.");
+            }
+        }
+
+        [HttpPost("reset-password")]
+        public IActionResult ResetPassword([FromBody] ResetPasswordRequest request)
+        {
+            bool resetSuccess = _authService.ResetPassword(request.Email, request.Token, request.NewPassword);
+            if (resetSuccess)
+            {
+                return Ok("Password reset successfully.");
+            }
+            else
+            {
+                return BadRequest("Password reset failed. Please check your token or try again later.");
             }
         }
     }

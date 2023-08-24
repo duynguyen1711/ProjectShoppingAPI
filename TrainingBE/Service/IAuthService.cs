@@ -10,5 +10,7 @@ namespace TrainingBE.Service
         bool ValidateRegister(User registerRequest, out string errorMessage);
         string GenerateJwtToken(User user);
         User GetUserByUsername(string userName);
+        bool RequestPasswordReset(string email);
+        bool ResetPassword(string email, string token, string newPassword);
     }
 }
