@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using TrainingBE.Model;
 using TrainingBE.Service;
@@ -16,6 +17,7 @@ namespace TrainingBE.Controllers
             _paymentService = paymentService;
         }
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         public ActionResult Index()
         {
             var model = _paymentService.GetPayment();
@@ -23,6 +25,7 @@ namespace TrainingBE.Controllers
         }
         [HttpGet]
         [Route("{id}")]
+        [Authorize(Roles = "Admin")]
         public ActionResult GetByID(int id)
         {
             if (id <= 0)
@@ -37,6 +40,7 @@ namespace TrainingBE.Controllers
             return Ok(model);
         }
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
 
         public ActionResult DeletePayment(int id)
         {
@@ -52,6 +56,7 @@ namespace TrainingBE.Controllers
             return Ok("Payment deleted successfully.");
         }
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public ActionResult AddPayment(Payment payment)
         {
              _paymentService.AddPayment(payment);

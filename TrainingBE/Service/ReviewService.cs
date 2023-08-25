@@ -1,4 +1,5 @@
-﻿using TrainingBE.DTO;
+﻿using DocumentFormat.OpenXml.Spreadsheet;
+using TrainingBE.DTO;
 using TrainingBE.Model;
 using TrainingBE.Repository;
 using TrainingBE.Repository_Linq;
@@ -14,22 +15,30 @@ namespace TrainingBE.Service
             _unitOfWork = unitOfWork;
         }
 
-        public ResponseResult AddReview(Review review)
+        public ResponseResult AddReview(int UserId,AddReviewResquest reviewRequest)
         {
-            if(_unitOfWork.UserRepository.GetById(review.UserId)==null){
+            if(_unitOfWork.UserRepository.GetById(UserId)==null){
                 return new ResponseResult { IsError = true, ErrorMessage = "User not found" };
             }
-            if (_unitOfWork.ProductRepository.GetById(review.ProductId) == null)
+            if (_unitOfWork.ProductRepository.GetById(reviewRequest.ProductId) == null)
             {
                 return new ResponseResult { IsError = true, ErrorMessage = "Product not found" };
             }
-            if (review.Rating < 0 || review.Rating > 5)
+            if (reviewRequest.Rating < 0 || reviewRequest.Rating > 5)
             {
                 return new ResponseResult { IsError = true, ErrorMessage = "Rating must be between 0 and 5." };
             }
+            Review review = new Review
+            {
+                ProductId = reviewRequest.ProductId,
+                UserId = UserId, // 
+                Rating = reviewRequest.Rating,
+                Comment = reviewRequest.Comment,
+                DateCreated = DateTime.UtcNow,
+            };
             _unitOfWork.ReviewRepository.Add(review);
             _unitOfWork.Save();
-            return new ResponseResult { IsError = false, ErrorMessage = "Review Add Sucessfully." };
+            return new ResponseResult { IsError = false, Message = "Review Add Sucessfully." };
         }
 
         public List<ReviewDTO> GetReviewsForProduct(int productId)
@@ -48,7 +57,7 @@ namespace TrainingBE.Service
                     Rating = review.Rating,
                     Comment = review.Comment,
                     DateCreated = review.DateCreated,
-                    TimeAgo = CalculateTimeAgo(review.DateCreated)
+                    TimeAgo = CalculateTimeAgo(review.DateCreated.ToUniversalTime())
                 };
                 reviewDTOs.Add(reviewDTO);
             }
@@ -61,12 +70,16 @@ namespace TrainingBE.Service
             return _unitOfWork.ReviewRepository.CalculateAverageRatingForProduct(productId);
         }
 
-        public ResponseResult DeleteReview(int reviewId)
+        public ResponseResult DeleteReview(int reviewId, int userId)
         {
             var existingReview = _unitOfWork.ReviewRepository.GetById(reviewId);
             if (existingReview == null)
             {
                 return new ResponseResult { IsError = true, ErrorMessage = "Review not found." };
+            }
+            if (existingReview.UserId != userId)
+            {
+                return new ResponseResult { IsError = true, ErrorMessage = "You are not authorized to update this review." };
             }
             _unitOfWork.ReviewRepository.Delete(existingReview);
             _unitOfWork.Save();
@@ -96,12 +109,16 @@ namespace TrainingBE.Service
             return $"{(int)(timeDifference.TotalDays / 365)}y ago";
         }
 
-        public ResponseResult UpdateReview(int reviewId, float newRating, string newComment)
+        public ResponseResult UpdateReview(int reviewId,int userId, float newRating, string newComment)
         {
             var existingReview = _unitOfWork.ReviewRepository.GetById(reviewId);
             if (existingReview == null)
             {
                 return new ResponseResult { IsError = true, ErrorMessage = "Review not found." };
+            }
+            if (existingReview.UserId != userId)
+            {
+                return new ResponseResult { IsError = true, ErrorMessage = "You are not authorized to update this review." };
             }
 
             existingReview.Rating = newRating;
@@ -138,7 +155,7 @@ namespace TrainingBE.Service
                     Rating = review.Rating,
                     Comment = review.Comment,
                     DateCreated = review.DateCreated,
-                    TimeAgo = CalculateTimeAgo(review.DateCreated)
+                    TimeAgo = CalculateTimeAgo(review.DateCreated.ToUniversalTime())
                 };
                 reviewDTOs.Add(reviewDTO);
             }
@@ -161,7 +178,7 @@ namespace TrainingBE.Service
                     Rating = review.Rating,
                     Comment = review.Comment,
                     DateCreated = review.DateCreated,
-                    TimeAgo = CalculateTimeAgo(review.DateCreated)
+                    TimeAgo = CalculateTimeAgo(review.DateCreated.ToUniversalTime())
                 };
                 reviewDTOs.Add(reviewDTO);
             }

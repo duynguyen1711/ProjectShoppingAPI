@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
 using TrainingBE.DTO;
@@ -16,7 +17,7 @@ namespace TrainingBE.Controllers
         {
             _productDiscountService = productDiscountService;
         }
-
+        [Authorize(Roles = "Admin")]
         // Thêm Discount cho Product
         [HttpPost("{productId}/add-discount/{discountId}")]
         public IActionResult AddDiscountToProduct(int productId, int discountId)
@@ -29,7 +30,7 @@ namespace TrainingBE.Controllers
             }
             return BadRequest(errorMessage);
         }
-
+        [Authorize(Roles = "Admin")]
         // Xóa Discount khỏi Product
         [HttpDelete("products/{productId}/discounts/{discountId}")]
         public IActionResult RemoveDiscountFromProduct(int productId, int discountId)
@@ -44,7 +45,7 @@ namespace TrainingBE.Controllers
 
             return Ok("Discount removed from product successfully.");
         }
-
+        [Authorize(Roles = "Admin")]
         // Lấy tất cả các Discount của một Product
         [HttpGet("{productId}/discounts")]
         public IActionResult GetDiscountsByProductId(int productId)
@@ -57,7 +58,7 @@ namespace TrainingBE.Controllers
             }
             return Ok(discounts);
         }
-
+        [Authorize(Roles = "Admin")]
         // Lấy tất cả các Product có cùng một Discount
         [HttpGet("discount/{discountId}/products")]
         public IActionResult GetProductsByDiscountId(int discountId)
@@ -70,6 +71,7 @@ namespace TrainingBE.Controllers
             }
             return Ok(products);
         }
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public ActionResult<IEnumerable<ProductDiscountDTO>> GetAllProductDiscount()
         {

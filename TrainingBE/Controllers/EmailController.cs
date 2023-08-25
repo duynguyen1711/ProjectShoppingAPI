@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using TrainingBE.DTO;
 using TrainingBE.Model;
 using TrainingBE.Repository;
@@ -19,6 +20,7 @@ namespace TrainingBE.Controllers
             _emailService = emailService;
             _unitOfWork = unitOfWork;
         }
+        [Authorize(Roles = "Admin")]
 
         [HttpPost]
         public IActionResult SendEmail(EmailDTO request)

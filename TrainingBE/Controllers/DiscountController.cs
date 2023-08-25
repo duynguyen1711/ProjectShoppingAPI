@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using TrainingBE.Model;
 using TrainingBE.Service;
@@ -15,13 +16,14 @@ namespace TrainingBE.Controllers
         {
             _discountService = discountService;
         }
-
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public ActionResult<IEnumerable<Discount>> GetAllDiscounts()
         {
             var discounts = _discountService.GetAllDiscounts();
             return Ok(discounts);
         }
+        [Authorize(Roles = "Admin")]
         [HttpGet("{id}")]
         public ActionResult<Discount> GetDiscountById(int id)
         {
@@ -33,6 +35,7 @@ namespace TrainingBE.Controllers
 
             return Ok(discount);
         }
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public ActionResult AddDiscount(Discount discount)
         {
@@ -51,6 +54,7 @@ namespace TrainingBE.Controllers
                 return BadRequest(ex.Message);
             }
         }
+        [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
         public IActionResult UpdateDiscount(int id, Discount discount)
         {
@@ -64,6 +68,7 @@ namespace TrainingBE.Controllers
                 return BadRequest(errorMessage);
             }
         }
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public IActionResult DeleteDiscount(int id)
         {

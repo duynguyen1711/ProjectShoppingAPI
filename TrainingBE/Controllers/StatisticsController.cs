@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using TrainingBE.DTO;
@@ -21,7 +22,7 @@ namespace TrainingBE.Controllers
             _userService = userService;
             _excelService = excelService;
         }
-
+        [Authorize(Roles = "Admin")]
         [HttpGet("best-selling-products")]
         public IActionResult GetBestSellingProducts()
         {
@@ -35,6 +36,7 @@ namespace TrainingBE.Controllers
                 return BadRequest($"Error: {ex.Message}");
             }
         }
+        [Authorize(Roles = "Admin")]
         [HttpGet("order-statistics")]
         public IActionResult GetOrderStatisticsByMonthAndYear(int year, int month)
         {
@@ -48,6 +50,7 @@ namespace TrainingBE.Controllers
                 return BadRequest($"Error: {ex.Message}");
             }
         }
+        [Authorize(Roles = "Admin")]
         [HttpGet("customer-statistics")]
         public IActionResult GetCustomerStatistic()
         {
@@ -61,6 +64,7 @@ namespace TrainingBE.Controllers
                 return BadRequest($"Error: {ex.Message}");
             }
         }
+        [Authorize(Roles = "Admin")]
         [HttpGet("export-excel-order")]
         public IActionResult ExportToExcelOrder(int year,int month)
         {
@@ -76,6 +80,7 @@ namespace TrainingBE.Controllers
                 return BadRequest($"Error: {ex.Message}");
             }
         }
+        [Authorize(Roles = "Admin")]
         [HttpGet("export-excel-customer")]
         public IActionResult ExportToExcelCustomer()
         {

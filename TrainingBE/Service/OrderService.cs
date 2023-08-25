@@ -58,7 +58,10 @@ namespace TrainingBE.Service
 
             return order;
         }
-
+        public Order GetOrderByOrderId(int orderId)
+        {
+            return _unitOfWork.OrderRepository.GetById(orderId);
+        }
         public List<OrderDTO> GetAllOrders()
         {
             var orders = _unitOfWork.OrderRepository.GetAll();

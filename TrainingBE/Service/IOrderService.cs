@@ -12,6 +12,8 @@ namespace TrainingBE.Service
         void UpdateOrderStatus(int orderId, OrderStatus newStatus);
         OrderStatisticDTO GetOrderDetailsByMonthAndYear(int year, int month);
         List<OrderDetailDTO> GetOrderDetailsByMonthAndYear1(int year, int month);
-       
+        Order GetOrderByOrderId(int orderId);
+
+
     }
 }
